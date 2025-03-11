@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\dj-api.props" />
+</Project>

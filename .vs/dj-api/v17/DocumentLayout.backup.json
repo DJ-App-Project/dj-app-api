@@ -1,0 +1,138 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\models\\song.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\models\\song.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\repositories\\songrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\repositories\\songrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\data\\mongodbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\data\\mongodbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\controllers\\songcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\controllers\\songcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|d:\\faks\\3.letnik\\socioloski vidik\\api\\dj-api\\dj-api\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5583D997-856B-4EA6-BFC0-B749BDF2CB95}|dj-api\\dj-api.csproj|solutionrelative:dj-api\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SongController.cs",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Controllers\\SongController.cs",
+              "RelativeDocumentMoniker": "dj-api\\Controllers\\SongController.cs",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Controllers\\SongController.cs",
+              "RelativeToolTip": "dj-api\\Controllers\\SongController.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAuwCoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-11T19:03:24.571Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SongRepository.cs",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Repositories\\SongRepository.cs",
+              "RelativeDocumentMoniker": "dj-api\\Repositories\\SongRepository.cs",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Repositories\\SongRepository.cs",
+              "RelativeToolTip": "dj-api\\Repositories\\SongRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-11T19:02:25.492Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Song.cs",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Models\\Song.cs",
+              "RelativeDocumentMoniker": "dj-api\\Models\\Song.cs",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Models\\Song.cs",
+              "RelativeToolTip": "dj-api\\Models\\Song.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-11T18:59:30.146Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MongoDbContext.cs",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Data\\MongoDbContext.cs",
+              "RelativeDocumentMoniker": "dj-api\\Data\\MongoDbContext.cs",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Data\\MongoDbContext.cs",
+              "RelativeToolTip": "dj-api\\Data\\MongoDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-11T18:47:05.284Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\appsettings.json",
+              "RelativeDocumentMoniker": "dj-api\\appsettings.json",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\appsettings.json",
+              "RelativeToolTip": "dj-api\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-11T18:33:37.012Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "dj-api\\Controllers\\WeatherForecastController.cs",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "dj-api\\Controllers\\WeatherForecastController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-11T18:27:05.031Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Program.cs",
+              "RelativeDocumentMoniker": "dj-api\\Program.cs",
+              "ToolTip": "D:\\Faks\\3.letnik\\SOCIOLOSKI VIDIK\\API\\dj-api\\dj-api\\Program.cs",
+              "RelativeToolTip": "dj-api\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-11T18:25:22.301Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
