@@ -3,12 +3,49 @@ using dj_api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+<<<<<<< Updated upstream
+=======
+#region auth
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiKeyPolicy", policy =>
+
+    {
+      
+        policy.Requirements.Add(new ApiKeyRequirement());
+    });
+});
+builder.Services.AddScoped<IAuthorizationHandler, ApiKeyHandler>();
+builder.Services.AddScoped<IApiKeyValidation, ApiKeyValidation>();//call apikeyValidation
+builder.Services.AddHttpContextAccessor();//need for policy based auth
+#endregion
+
+#region rateLimit
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    rateLimiterOptions.AddSlidingWindowLimiter("sliding", options =>
+    {
+        options.PermitLimit = 100; // number of req in specific time
+        options.Window = TimeSpan.FromSeconds(20);// specific time
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
+    });
+});
+#endregion
+
+>>>>>>> Stashed changes
 // Add services to the container.
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton<EventRepository>();
 builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
+builder.Services.AddSingleton<SongRepository>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

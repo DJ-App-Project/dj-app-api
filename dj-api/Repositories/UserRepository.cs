@@ -1,8 +1,6 @@
-using dj_api.Data;
+﻿using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace dj_api.Repositories
 {
@@ -25,20 +23,30 @@ namespace dj_api.Repositories
             return await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
         }
 
-        public async Task CreateUserAsync(User user)
+        public async Task CreateUserAsync(User NewUser)
         {
-            await _usersCollection.InsertOneAsync(user);
+            var existing = await _usersCollection.Find(user => user.Id == NewUser.Id).FirstOrDefaultAsync(); // preveri, če uporabnik že obstaja
+            if (existing != null)
+                throw new Exception($"User s {NewUser.Id} že obstaja"); // če uporabnik že obstaja, vrni Exception
+
+            if (_usersCollection.Find(user => user.Username == NewUser.Username || user.Email == NewUser.Email).Any()) 
+                throw new Exception($"Username ali email že uporabljen"); // če uporabnik z emailom ali usernamom že obstaja, vrni Exception
+
+            await _usersCollection.InsertOneAsync(NewUser); // ustvari novega uporabnika
         }
 
         public async Task DeleteUserAsync(string id)
         {
-            await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id));
+            var existing = await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
+            if (existing == null)
+                throw new Exception($"User s {id} ne obstaja"); // če uporabnik ne obstaja, vrni Exception
+
+            await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id)); // izbriši uporabnika
         }
 
         public async Task UpdateUserAsync(string id, User user)
         {
             await _usersCollection.ReplaceOneAsync(user => user.Id == Convert.ToInt32(id), user);
         }
-
     }
 }
