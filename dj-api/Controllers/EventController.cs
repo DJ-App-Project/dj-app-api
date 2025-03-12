@@ -106,4 +106,28 @@ public class EventController : ControllerBase
         return NotFound(); // če QR koda ni generirana, vrni NotFound
     }
 
+    [HttpGet("{id}/music-details")] //GET API Za pridobitev muzik v DJ-jovem playlistu in pregledom s voti. 
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> GetMusicDetailsForEvent(string id)
+    {
+        var eventy = await _eventsRepository.GetEventByIdAsync(id);
+
+        if (eventy == null) //ce id ni v bazi
+            return NotFound($"Event with ID {id} not found.");
+
+        // Extract relevant details and sort by votes (descending)
+        var musicDetails = eventy.MusicConfig?.MusicPlaylist?
+            .OrderByDescending(m => m.Votes) //po votih padajoce
+            .Select(m => new
+            {
+                MusicName = m.MusicName,
+                Visible = m.Visible,
+                Votes = m.Votes,
+                IsUserRecommendation = m.IsUserRecommendation,
+                RecommenderID = m.RecommenderID
+            }).ToList();
+
+        return Ok(musicDetails);
+    }
+
 }
