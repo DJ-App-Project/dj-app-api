@@ -1,6 +1,8 @@
 using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dj_api.Repositories
 {
@@ -10,7 +12,12 @@ namespace dj_api.Repositories
 
         public UserRepository(MongoDbContext dbContext)
         {
-            _usersCollection = dbContext.GetCollection<User>("users");
+            _usersCollection = dbContext.GetCollection<User>("User");
+        }
+      
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            return await _usersCollection.Find(_ => true).ToListAsync();
         }
 
         public async Task<User> GetUserByIdAsync(string id)

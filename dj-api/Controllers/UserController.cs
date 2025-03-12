@@ -1,4 +1,4 @@
-using dj_api.Models;
+﻿using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -14,6 +14,13 @@ public class UserController : ControllerBase
 	{
 		_userRepository = userRepository;
 	}
+  
+  [HttpGet]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _userRepository.GetAllUsersAsync();
+        return Ok(users);
+    }
 
 	[HttpGet("{id}")]
 	public async Task<IActionResult> GetUserById(string id)
@@ -34,6 +41,7 @@ public class UserController : ControllerBase
 
 	[HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
+
     {
         var user = await _userRepository.GetUserByIdAsync(id);
         if (user == null)
@@ -52,6 +60,6 @@ public class UserController : ControllerBase
             return NotFound();
         await _userRepository.UpdateUserAsync(id, newUser);
         return NoContent();
-    }
-
+       
+    }   
 }
