@@ -36,3 +36,47 @@ D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\MongoDB.Dri
 D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\SharpCompress.dll
 D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\Snappier.dll
 D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\ZstdSharp.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\appsettings.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\dj-api.staticwebassets.endpoints.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\dj-api.exe
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\dj-api.deps.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\dj-api.runtimeconfig.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\dj-api.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\dj-api.pdb
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\DnsClient.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\MongoDB.Bson.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\MongoDB.Driver.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\SharpCompress.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\Snappier.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\ZstdSharp.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.csproj.AssemblyReference.cache
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.AssemblyInfoInputs.cache
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.AssemblyInfo.cs
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.csproj.CoreCompileInputs.cache
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.sourcelink.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\scopedcss\bundle\dj-api.styles.css
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets\msbuild.dj-api.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets\msbuild.dj-api.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets\msbuild.build.dj-api.props
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.dj-api.props
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.dj-api.props
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.csproj.Up2Date
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\refint\dj-api.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.pdb
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\dj-api.genruntimeconfig.cache
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\obj\Debug\net8.0\ref\dj-api.dll
+C:\Users\MarkPC\Source\Repos\dj-app-api\dj-api\bin\Debug\net8.0\System.Threading.RateLimiting.dll

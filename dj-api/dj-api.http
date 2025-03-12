@@ -3,4 +3,11 @@
 GET {{dj_api_HostAddress}}/weatherforecast/
 Accept: application/json
 
+
 ###
+GET {{dj_api_HostAddress}}/api/songs/
+Accept: application/json
+X-API-Key: 274b8304-0a13-4351-8d40-0082da22a615
+
+
+

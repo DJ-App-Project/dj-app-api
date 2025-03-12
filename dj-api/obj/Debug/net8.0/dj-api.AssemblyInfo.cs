@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dj-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4198b2b11b4caf9531d344787c1187e5edce1d09")]
 [assembly: System.Reflection.AssemblyProductAttribute("dj-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dj-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

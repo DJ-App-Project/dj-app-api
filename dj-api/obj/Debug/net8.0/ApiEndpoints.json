@@ -11,22 +11,6 @@
   },
   {
     "ContainingType": "SongController",
-    "Method": "CreateSong",
-    "RelativePath": "api/songs",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "song",
-        "Type": "dj_api.Models.Song",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "SongController",
     "Method": "GetSongById",
     "RelativePath": "api/songs/{id}",
     "HttpMethod": "GET",
