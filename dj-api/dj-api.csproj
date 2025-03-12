@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="3.2.1" />
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 	 <PackageReference Include="System.Threading.RateLimiting" Version="9.0.0" />
   </ItemGroup>
