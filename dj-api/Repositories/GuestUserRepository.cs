@@ -1,4 +1,4 @@
-using dj_api.Data;
+﻿using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
 
@@ -25,12 +25,20 @@ namespace dj_api.Repositories
 
         public async Task CreateUserAsync(GuestUser user)
         {
-            await _guestUsersCollection.InsertOneAsync(user);
+            var existing = await _guestUsersCollection.Find(user => user.Id == user.Id).FirstOrDefaultAsync();
+            if (existing != null)
+                throw new Exception($"User s {user.Id} že obstaja"); // če uporabnik že obstaja, vrni Exception
+
+            await _guestUsersCollection.InsertOneAsync(user); // ustvari novega uporabnika
         }
 
         public async Task DeleteUserAsync(string id)
         {
-            await _guestUsersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id));
+            var existing = await _guestUsersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
+            if (existing == null)
+                throw new Exception($"User s {id} ne obstaja"); // če uporabnik ne obstaja, vrni Exception
+
+            await _guestUsersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id)); // izbriši uporabnika
         }
 
         public async Task UpdateUserAsync(string id, GuestUser user)

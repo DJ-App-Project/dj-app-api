@@ -16,8 +16,8 @@ namespace dj_api.Models
         [BsonElement("DJID")]
         public string DJId { get; set; }
 
-        [BsonElement("QRCode")]
-        public string QRCodeText { get; set; } 
+        [BsonElement("QRCode")] 
+        public string QRCodeText { get; set; }  
 
         [BsonElement("MusicConfig")]
         public MusicConfigClass MusicConfig { get; set; }
