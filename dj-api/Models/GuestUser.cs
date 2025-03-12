@@ -5,7 +5,7 @@ using System;
 namespace dj_api.Models
 {
     [BsonIgnoreExtraElements]
-    public class User
+    public class GuestUser
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -17,26 +17,21 @@ namespace dj_api.Models
         [BsonElement("Name")]
         public string Name { get; set; }
 
-        [BsonElement("FamilyName")]
-        public string FamilyName { get; set; }
-
-        [BsonElement("ImageUrl")]
-        public string ImageUrl { get; set; }
-
         [BsonElement("Username")]
         public string Username { get; set; }
 
         [BsonElement("Email")]
         public string Email { get; set; }
 
-        [BsonElement("Password")]
-        public string Password { get; set; }
-
         [BsonElement("CreatedAt")]
         public DateTime CreatedAt { get; set; }
 
         [BsonElement("UpdatedAt")]
         public DateTime UpdatedAt { get; set; }
-        
+
+        //v bazi jih je vecina NaN?
+        //[BsonElement("DeletedAt")]
+        //public DateTime DeletedAt { get; set; }
+
     }
 }

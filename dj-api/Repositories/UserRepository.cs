@@ -22,7 +22,7 @@ namespace dj_api.Repositories
 
         public async Task<User> GetUserByIdAsync(string id)
         {
-            return await _usersCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
+            return await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
         }
 
         public async Task CreateUserAsync(User user)
@@ -32,12 +32,12 @@ namespace dj_api.Repositories
 
         public async Task DeleteUserAsync(string id)
         {
-            await _usersCollection.DeleteOneAsync(user => user.Id == id);
+            await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id));
         }
 
         public async Task UpdateUserAsync(string id, User user)
         {
-            await _usersCollection.ReplaceOneAsync(user => user.Id == id, user);
+            await _usersCollection.ReplaceOneAsync(user => user.Id == Convert.ToInt32(id), user);
         }
 
     }

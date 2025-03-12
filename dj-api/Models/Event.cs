@@ -8,8 +8,28 @@ namespace dj_api.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        public string ObjectId { get; set; }
+
+        [BsonElement("ID")]
         public string Id { get; set; }
 
-        //ko bo baza done treba dodat
+        [BsonElement("DJID")]
+        public string DJId { get; set; }
+
+        [BsonElement("QRCode")]
+        public string QRCodeText { get; set; } 
+
+        [BsonElement("MusicConfig")]
+        public MusicConfigClass MusicConfig { get; set; }
+
+        public class MusicConfigClass
+        {
+            [BsonElement("MusicPlaylist")]
+            public List<MusicData> MusicPlaylist { get; set; }
+
+            [BsonElement("EnableUserRecommendation")]
+            public bool EnableUserRecommendation { get; set; }
+        }
+
     }
 }
