@@ -18,13 +18,6 @@ public class SongController : ControllerBase
         _songRepository = songRepository;
     }
 
-    [HttpGet]
-    [Authorize(Policy = "ApiKeyPolicy")]// Apply auth to api
-    public async Task<IActionResult> GetAllSongs()
-    {
-        var songs = await _songRepository.GetAllSongsAsync();
-        return Ok(songs);
-    }
 
     [HttpGet("{id}")]
     [Authorize(Policy = "ApiKeyPolicy")]// Apply auth to api
