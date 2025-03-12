@@ -1,5 +1,6 @@
 ﻿using dj_api.Models;
 using dj_api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ public class UserController : ControllerBase
 	}
   
   [HttpGet]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await _userRepository.GetAllUsersAsync();
@@ -23,7 +25,8 @@ public class UserController : ControllerBase
     }
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetUserById(string id)
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> GetUserById(string id)
 	{
 		var user = await _userRepository.GetUserByIdAsync(id);
 		if (user == null)
@@ -33,6 +36,7 @@ public class UserController : ControllerBase
 	}
 
 	[HttpPost]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> CreateUser(User user)
     {
         await _userRepository.CreateUserAsync(user);
@@ -40,6 +44,7 @@ public class UserController : ControllerBase
     }
 
 	[HttpDelete("{id}")]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> DeleteUser(string id)
 
     {
@@ -51,6 +56,7 @@ public class UserController : ControllerBase
     }
 
 	[HttpPut("{id}")]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> UpdateUser(string id, User newUser)
     {
         if (Convert.ToInt32(id) != newUser.Id)

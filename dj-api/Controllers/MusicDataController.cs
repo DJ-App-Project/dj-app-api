@@ -1,5 +1,6 @@
 ﻿using dj_api.Models;
 using dj_api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ public class MusicDataController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetAllMusicData()
     {
         var musicData = await _musicDataRepository.GetAllMusicDataAsync();
@@ -23,6 +25,7 @@ public class MusicDataController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetMusicDataById(string id)
     {
         var musicData = await _musicDataRepository.GetMusicDataByIdAsync(id);
