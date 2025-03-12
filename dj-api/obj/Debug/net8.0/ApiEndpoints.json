@@ -1,8 +1,8 @@
 [
   {
-    "ContainingType": "SongController",
-    "Method": "GetAllSongs",
-    "RelativePath": "api/songs",
+    "ContainingType": "MusicDataController",
+    "Method": "GetAllMusicData",
+    "RelativePath": "api/music-data",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -10,25 +10,35 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "SongController",
-    "Method": "CreateSong",
-    "RelativePath": "api/songs",
-    "HttpMethod": "POST",
+    "ContainingType": "MusicDataController",
+    "Method": "GetMusicDataById",
+    "RelativePath": "api/music-data/{id}",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "song",
-        "Type": "dj_api.Models.Song",
+        "Name": "id",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "SongController",
-    "Method": "GetSongById",
-    "RelativePath": "api/songs/{id}",
+    "ContainingType": "UserController",
+    "Method": "GetAllUsers",
+    "RelativePath": "api/users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "UserController",
+    "Method": "GetUserById",
+    "RelativePath": "api/users/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

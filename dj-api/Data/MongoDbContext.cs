@@ -9,7 +9,7 @@ namespace dj_api.Data
         public MongoDbContext(IConfiguration configuration)
         {
             var client = new MongoClient(configuration.GetConnectionString("DbConnection"));
-            _database = client.GetDatabase("djSuggestions"); 
+            _database = client.GetDatabase("DJSuggestionsDB"); 
         }
 
         public IMongoCollection<T> GetCollection<T>(string name)

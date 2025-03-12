@@ -36,3 +36,5 @@ D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\MongoDB.Dri
 D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\SharpCompress.dll
 D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\Snappier.dll
 D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\ZstdSharp.dll
+D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\obj\Debug\net8.0\dj-api.sourcelink.json
+D:\Faks\3.letnik\SOCIOLOSKI VIDIK\API\dj-api\dj-api\bin\Debug\net8.0\Newtonsoft.Json.dll
