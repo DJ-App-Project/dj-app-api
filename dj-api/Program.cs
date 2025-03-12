@@ -8,6 +8,7 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton<EventRepository>();
 builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddSingleton<GuestUserRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

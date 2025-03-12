@@ -20,7 +20,7 @@ namespace dj_api.Models
         public int Votes { get; set; }
 
         [BsonElement("VotersIDs")]
-        public string VotersIDs { get; set; }
+        public List<string> VotersIDs { get; set; }
 
         [BsonElement("IsUserRecommendation")]
         public bool IsUserRecommendation { get; set; }

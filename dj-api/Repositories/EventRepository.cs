@@ -12,7 +12,7 @@ namespace dj_api.Repositories
 
         public EventRepository(MongoDbContext dbContext)
         {
-            _eventsCollection = dbContext.GetCollection<Event>("events");
+            _eventsCollection = dbContext.GetCollection<Event>("DJEvent");
         }
 
         public async Task<List<Event>> GetAllEventsAsync()
@@ -40,29 +40,18 @@ namespace dj_api.Repositories
             await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy);
         }
 
-        //QR Code
+        //QR Code generacija iz teksta v bazi
         public async Task<Byte[]> GenerateQRCode(string EventId)
         {
             Byte[] qrCodeImg = null;
             Event eventy;
 
-            //test dokler ni baze
-            if (EventId == "test")
-            {
-                eventy = new Event
-                {
-                    Id = "Test izpis za zdaj"
-                };
-            }
-            else
-            {
-                eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync();
-                if (eventy == null)
-                    return null;
-            }
+            eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync();
+            if (eventy == null)
+                return null;
 
             using (var qrGenerator = new QRCodeGenerator())
-            using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(eventy.Id, QRCodeGenerator.ECCLevel.Q))
+            using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(eventy.QRCodeText, QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
                 qrCodeImg = qrCode.GetGraphic(20);

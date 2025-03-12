@@ -53,7 +53,7 @@ public class UserController : ControllerBase
 	[HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(string id, User newUser)
     {
-        if (id != newUser.Id)
+        if (Convert.ToInt32(id) != newUser.Id)
             return BadRequest();
         var existingUser = await _userRepository.GetUserByIdAsync(id);
         if (existingUser == null)
