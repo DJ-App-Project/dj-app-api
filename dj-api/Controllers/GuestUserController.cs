@@ -1,5 +1,6 @@
 ﻿using dj_api.Models;
 using dj_api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -16,14 +17,16 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllUsers() // GET api za vse goste
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> GetAllUsers()// GET api za vse goste
     {
         var users = await _guestUserRepository.GetAllUsersAsync();
         return Ok(users);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(string id) // GET api za enega gosta po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> GetUserById(string id)// GET api za enega gosta po ID
     {
         var user = await _guestUserRepository.GetUserByIdAsync(id);
         if (user == null)
@@ -33,7 +36,8 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateUser(GuestUser user) // POST api za kreiranje novega gosta
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> CreateUser(GuestUser user)// POST api za kreiranje novega gosta
     {
         if (user == null)
             return BadRequest("User data missing"); // če ni podatkov o gostu, vrni BadRequest
@@ -50,7 +54,9 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(string id) // DELETE api za brisanje gosta po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> DeleteUser(string id)// DELETE api za brisanje gosta po ID
+
     {
         var user = await _guestUserRepository.GetUserByIdAsync(id);
         if (user == null)
@@ -68,7 +74,8 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(string id, GuestUser newUser) // PUT api za posodabljanje gosta po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> UpdateUser(string id, GuestUser newUser)// PUT api za posodabljanje gosta po ID
     {
         if (Convert.ToInt32(id) != newUser.Id)
             return BadRequest(); // če ID ni enak ID-ju gosta, vrni BadRequest

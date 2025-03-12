@@ -1,5 +1,6 @@
 ﻿using dj_api.Models;
 using dj_api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -15,7 +16,9 @@ public class EventController : ControllerBase
         _eventsRepository = eventRepository;
     }
 
-    [HttpGet] // GET api za vse dogodke
+
+    [HttpGet]// GET api za vse dogodke
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetAllEvents()
     {
         var events = await _eventsRepository.GetAllEventsAsync(); // pridobi vse dogodke
@@ -26,7 +29,9 @@ public class EventController : ControllerBase
         return NotFound(); // če ni dogodkov, vrni NotFound
     }
 
-    [HttpGet("{id}")] // GET api za en dogodek po ID
+
+    [HttpGet("{id}")]// GET api za en dogodek po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetEventById(string id)
     {
         var eventy = await _eventsRepository.GetEventByIdAsync(id); // pridobi dogodek po ID
@@ -36,7 +41,9 @@ public class EventController : ControllerBase
         return Ok(eventy); // če je dogodek najden, vrni dogodek
     }
 
-    [HttpPost] // POST api za kreiranje novega dogodka
+
+    [HttpPost]// POST api za kreiranje novega dogodka
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> CreateEvent(Event eventy)
     {
         if (eventy == null)
@@ -55,7 +62,8 @@ public class EventController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")] // DELETE api za brisanje dogodka po ID
+    [HttpDelete("{id}")]// DELETE api za brisanje dogodka po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> DeleteEvent(string id)
     {
         try
@@ -69,7 +77,9 @@ public class EventController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")] // PUT api za posodabljanje dogodka po ID
+
+    [HttpPut("{id}")]// PUT api za posodabljanje dogodka po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> UpdateEvent(string id, Event newEvent)
     {
         if (id != newEvent.Id)
@@ -82,7 +92,9 @@ public class EventController : ControllerBase
         return NoContent(); // če je dogodek uspešno posodobljen, vrni NoContent
     }
 
-    [HttpGet("{id}/qrcode")] // GET api za png QR kodo dogodka po ID
+
+    [HttpGet("{id}/qrcode")]// GET api za png QR kodo dogodka po ID
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetEventQrCode(string id)
     {
         var QRImg = await _eventsRepository.GenerateQRCode(id);

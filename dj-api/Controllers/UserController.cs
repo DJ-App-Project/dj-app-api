@@ -1,5 +1,6 @@
 ﻿using dj_api.Models;
 using dj_api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -14,25 +15,27 @@ public class UserController : ControllerBase
     {
         _userRepository = userRepository;
     }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAllUsers() // GET api za vse uporabnike
+  
+  [HttpGet]
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> GetAllUsers()// GET api za vse uporabnike
     {
         var users = await _userRepository.GetAllUsersAsync();
         return Ok(users);
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> GetUserById(string id) // GET api za enega uporabnika po ID
     {
         var user = await _userRepository.GetUserByIdAsync(id);
         if (user == null)
             return NotFound(); // če uporabnik ni najden, vrni NotFound
-
         return Ok(user);
     }
 
     [HttpPost]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> CreateUser(User user) // POST api za kreiranje novega uporabnika
     {
         if (user == null)
@@ -49,9 +52,10 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(string id) // DELETE api za brisanje uporabnika po ID
 
+	[HttpDelete("{id}")]
+    [Authorize(Policy = "ApiKeyPolicy")]
+    public async Task<IActionResult> DeleteUser(string id) // DELETE api za brisanje uporabnika po ID
     {
         var user = await _userRepository.GetUserByIdAsync(id);
         if (user == null)
@@ -68,7 +72,8 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
+	[HttpPut("{id}")]
+    [Authorize(Policy = "ApiKeyPolicy")]
     public async Task<IActionResult> UpdateUser(string id, User newUser) // PUT api za posodabljanje uporabnika po ID
     {
         if (Convert.ToInt32(id) != newUser.Id)
