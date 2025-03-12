@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
@@ -14,6 +14,7 @@ namespace dj_api.Models
         [BsonElement("ID")]
         public int UserID { get; set; }
 
+
         [BsonElement("Name")]
         public string Name { get; set; }
 
@@ -21,7 +22,9 @@ namespace dj_api.Models
         public string FamilyName { get; set; }
 
         [BsonElement("ImageUrl")]
+
         public string ImageUrl { get; set; }
+
 
         [BsonElement("Username")]
         public string Username { get; set; }
@@ -37,7 +40,6 @@ namespace dj_api.Models
 
         [BsonElement("UpdatedAt")]
         public DateTime UpdatedAt { get; set; }
-
         
     }
 }
