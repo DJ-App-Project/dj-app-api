@@ -1,5 +1,6 @@
 using dj_api.Data;
 using dj_api.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,15 +15,31 @@ namespace dj_api.Repositories
         {
             _usersCollection = dbContext.GetCollection<User>("User");
         }
-      
+
         public async Task<List<User>> GetAllUsersAsync()
         {
-            return await _usersCollection.Find(_ => true).ToListAsync();
+            var users = await _usersCollection.Find(user => true).ToListAsync();
+
+            // Convert ObjectId to String when returning data
+            foreach (var user in users)
+            {
+                user.Id = user.Id.ToString();
+            }
+
+            return users;
         }
 
         public async Task<User> GetUserByIdAsync(string id)
         {
-            return await _usersCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
+            var objectId = ObjectId.Parse(id); // Convert string ID back to ObjectId
+            var user = await _usersCollection.Find(u => u.Id == objectId.ToString()).FirstOrDefaultAsync();
+
+            if (user != null)
+            {
+                user.Id = user.Id.ToString();
+            }
+
+            return user;
         }
 
         public async Task CreateUserAsync(User user)
@@ -38,6 +55,10 @@ namespace dj_api.Repositories
         public async Task UpdateUserAsync(string id, User user)
         {
             await _usersCollection.ReplaceOneAsync(user => user.Id == id, user);
+        }
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            return await _usersCollection.Find(user => user.Email == email).FirstOrDefaultAsync();
         }
 
     }

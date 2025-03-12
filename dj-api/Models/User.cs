@@ -9,6 +9,7 @@ namespace dj_api.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        [BsonIgnoreIfDefault]
         public string Id { get; set; }
 
         [BsonElement("ID")]
@@ -36,10 +37,10 @@ namespace dj_api.Models
         public string Password { get; set; }
 
         [BsonElement("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [BsonElement("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; }
-        
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
     }
 }
