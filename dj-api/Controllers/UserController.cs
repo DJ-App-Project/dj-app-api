@@ -17,7 +17,7 @@ public class UserController : ControllerBase
 	}
   
   [HttpGet]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await _userRepository.GetAllUsersAsync();
@@ -25,7 +25,7 @@ public class UserController : ControllerBase
     }
 
 	[HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetUserById(string id)
 	{
 		var user = await _userRepository.GetUserByIdAsync(id);
@@ -36,7 +36,7 @@ public class UserController : ControllerBase
 	}
 
 	[HttpPost]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> CreateUser(User user)
     {
         await _userRepository.CreateUserAsync(user);
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
     }
 
 	[HttpDelete("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> DeleteUser(string id)
 
     {
@@ -56,7 +56,7 @@ public class UserController : ControllerBase
     }
 
 	[HttpPut("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> UpdateUser(string id, User newUser)
     {
         if (Convert.ToInt32(id) != newUser.Id)

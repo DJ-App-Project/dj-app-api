@@ -39,6 +39,28 @@ namespace dj_api.Repositories
         {
             await _usersCollection.ReplaceOneAsync(user => user.Id == Convert.ToInt32(id), user);
         }
+        public async Task<User?> Authenticate(string username, string password)
+        { 
+            User? user = await _usersCollection.Find(u => u.Username == username).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return null;
+            }
+            //bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.Password); later when we have BCrypt
+            if (user.Password != password)
+            {
+                return null; 
+            }
+            return user;
+        }
+        public async Task<User> FindUserByUsername(string username)
+        {
+            return await _usersCollection.Find(user => user.Username == username ).FirstOrDefaultAsync();
+        }
+        public async Task<User> FindUserByEmail( string email)
+        {
+            return await _usersCollection.Find(user =>   user.Email == email).FirstOrDefaultAsync();
+        }
 
     }
 }

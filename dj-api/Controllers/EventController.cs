@@ -14,9 +14,8 @@ public class EventController : ControllerBase
     {
         _eventsRepository = eventRepository;
     }
-
     [HttpGet]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetAllEvents()
     {
         var events = await _eventsRepository.GetAllEventsAsync();
@@ -28,7 +27,7 @@ public class EventController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetEventById(string id)
     {
         var eventy = await _eventsRepository.GetEventByIdAsync(id);
@@ -39,7 +38,7 @@ public class EventController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> CreateEvent(Event eventy)
     {
         await _eventsRepository.CreateEventAsync(eventy);
@@ -47,7 +46,7 @@ public class EventController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> DeleteEvent(string id)
     {
         var eventy = await _eventsRepository.GetEventByIdAsync(id);
@@ -58,7 +57,7 @@ public class EventController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> UpdateEvent(string id, Event newEvent)
     {
         if (id != newEvent.Id)
@@ -71,7 +70,7 @@ public class EventController : ControllerBase
     }
 
     [HttpGet("{id}/qrcode")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetEventQrCode(string id)
     {
         var QRImg = await _eventsRepository.GenerateQRCode(id);

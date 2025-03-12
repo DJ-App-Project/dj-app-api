@@ -17,7 +17,7 @@ public class MusicDataController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetAllMusicData()
     {
         var musicData = await _musicDataRepository.GetAllMusicDataAsync();
@@ -25,7 +25,7 @@ public class MusicDataController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetMusicDataById(string id)
     {
         var musicData = await _musicDataRepository.GetMusicDataByIdAsync(id);

@@ -20,7 +20,7 @@ public class SongController : ControllerBase
 
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetSongById(string id)
     {
         var song = await _songRepository.GetSongByIdAsync(id);
