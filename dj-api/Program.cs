@@ -8,6 +8,7 @@ using System.Threading.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +60,7 @@ builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
 builder.Services.AddSingleton<SongRepository>();
-
+builder.Services.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
 builder.Services.AddSingleton<TokenService>();
 
 builder.Services.AddControllers();
