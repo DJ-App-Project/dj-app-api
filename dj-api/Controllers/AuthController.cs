@@ -103,7 +103,7 @@ namespace dj_api.Controllers
                     ObjectId = NewUser.ObjectId
                 });
             }
-            catch(Exception ex)
+            catch
             {
                 return Conflict("Error when creating user.");
             }

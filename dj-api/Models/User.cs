@@ -9,28 +9,28 @@ namespace dj_api.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string ObjectId { get; set; }
+        public string ObjectId { get; set; } = null!;
 
         [BsonElement("ID")]
         public int Id { get; set; }
 
         [BsonElement("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [BsonElement("FamilyName")]
-        public string FamilyName { get; set; }
+        public string FamilyName { get; set; } = null!;
 
         [BsonElement("ImageUrl")]
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = null!;
 
         [BsonElement("Username")]
-        public string Username { get; set; }
+        public string Username { get; set; } = null!;
 
         [BsonElement("Email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [BsonElement("Password")]
-        public string Password { get; set; }
+        public string Password { get; set; } = null!;
 
         [BsonElement("CreatedAt")]
         public DateTime CreatedAt { get; set; }

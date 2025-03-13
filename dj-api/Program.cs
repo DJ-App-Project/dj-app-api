@@ -11,9 +11,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Remove the API Key authentication code, as you're focusing on JWT only
 
-#region auth (JWT Only)
+
+#region auth 
+var jwtSettings = builder.Configuration.GetSection("JWTSecrets");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -23,12 +25,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "test", // The issuer of the JWT token
-            ValidAudience = "test2", // The expected audience of the JWT token
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("f5be22a679e35ba82f04d1427dbe56b8fc7301e529a1322110715467da59e7ce")) // Your secret key (ideally store in appsettings.json)
+            ValidIssuer = jwtSettings["issuer"], 
+            ValidAudience = jwtSettings["audience"], 
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["secretKey"]!)) 
         };
     });
-builder.Services.AddHttpContextAccessor(); // Needed for any future use cases of HttpContext
+
+builder.Services.AddHttpContextAccessor(); 
 
 #endregion
 
