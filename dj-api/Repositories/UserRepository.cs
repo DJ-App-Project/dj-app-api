@@ -64,11 +64,8 @@ namespace dj_api.Repositories
 
         public async Task DeleteUserAsync(string id)
         {
-            var existing = await _usersCollection.Find(user => user.ObjectId == id).FirstOrDefaultAsync();
-            if (existing == null)
-                throw new Exception($"User with ID {id} not found");
-
-            await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id));
+            
+            await _usersCollection.DeleteOneAsync(user => user.ObjectId == id);
 
           
             _memoryCache.Remove($"user_{id}");

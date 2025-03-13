@@ -1,4 +1,5 @@
-﻿using dj_api.Models;
+﻿using dj_api.ApiModels;
+using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,8 +45,6 @@ public class GuestUserController : ControllerBase
         return Ok(paginatedResult);
     }
 
-
-
     [HttpGet("{id}")]
     [Authorize]
     public async Task<IActionResult> GetUserById(string id)
@@ -59,15 +58,29 @@ public class GuestUserController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> CreateUser(GuestUser user)// POST api za kreiranje novega gosta
+    public async Task<IActionResult> CreateUser(GuestUserModel guestuser)// POST api za kreiranje novega gosta
     {
-        if (user == null)
+        if (guestuser == null)
             return BadRequest("User data missing"); // če ni podatkov o gostu, vrni BadRequest
 
         try
         {
-            await _guestUserRepository.CreateUserAsync(user);
-            return CreatedAtAction("GetUserById", new { id = user.Id }, user); // vrni ustvarjenega gosta
+            GuestUser CreateGuestUser = new GuestUser
+            {
+                Name = guestuser.Name,
+                Username = guestuser.Username,
+                Email = guestuser.Email,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.MinValue,
+            };
+
+
+            await _guestUserRepository.CreateUserAsync(CreateGuestUser);
+            return Ok(new
+            {
+                Message = "GuestUser created successfully.",
+                ObjectId = CreateGuestUser.ObjectId
+            });
         }
         catch (Exception ex)
         {
@@ -97,14 +110,26 @@ public class GuestUserController : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateUser(string id, GuestUser newUser)
+    public async Task<IActionResult> UpdateUser(string id, GuestUserModel UpdatedGuestUser)
     {
-        if (Convert.ToInt32(id) != newUser.Id)
-            return BadRequest(); // če ID ni enak ID-ju gosta, vrni BadRequest
+      
         var existingUser = await _guestUserRepository.GetUserByIdAsync(id);
         if (existingUser == null)
-            return NotFound(); // če gost ni najden, vrni NotFound
-        await _guestUserRepository.UpdateUserAsync(id, newUser);
-        return NoContent(); // če je gost uspešno posodobljen, vrni NoContent
+            return NotFound("GuestUser doesn't exist"); // če gost ni najden, vrni NotFound
+
+        GuestUser CreateGuestUser = new GuestUser
+        {
+            ObjectId = id,
+            Name = UpdatedGuestUser.Name,
+            Username = UpdatedGuestUser.Username,
+            Email = UpdatedGuestUser.Email,
+            CreatedAt = existingUser.CreatedAt,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+
+
+        await _guestUserRepository.UpdateUserAsync(id, CreateGuestUser);
+        return Ok(); // če je gost uspešno posodobljen, vrni NoContent
     }
 }

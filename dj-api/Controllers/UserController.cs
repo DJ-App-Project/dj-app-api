@@ -139,7 +139,7 @@ public class UserController : ControllerBase
             Email = UpdatedUser.email,
             Password = UpdatedUser.password,
             CreatedAt = existingUser.CreatedAt,
-            UpdatedAt = DateTime.Now,
+            UpdatedAt = DateTime.UtcNow,
         };
         
 
