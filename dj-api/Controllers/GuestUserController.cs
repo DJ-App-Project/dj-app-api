@@ -51,7 +51,7 @@ public class GuestUserController : ControllerBase
     {
         var user = await _guestUserRepository.GetUserByIdAsync(id);
         if (user == null)
-            return NotFound();
+            return NotFound("User not found");
 
         return Ok(user);
     }

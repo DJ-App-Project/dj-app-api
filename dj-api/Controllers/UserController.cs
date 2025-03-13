@@ -65,12 +65,12 @@ public class UserController : ControllerBase
             return BadRequest("User data missing"); 
 
         var userCheck = await _userRepository.FindUserByEmail(user.email);
-        if (user != null)
+        if (userCheck != null)
         {
             return Conflict("Email is already registered.");
         }
         userCheck = await _userRepository.FindUserByUsername(user.username);
-        if (user != null)
+        if (userCheck != null)
         {
             return Conflict("Username is already registered.");
         }
