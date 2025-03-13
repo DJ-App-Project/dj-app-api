@@ -174,7 +174,7 @@ namespace dj_api.Repositories
 
             eventy.MusicConfig.MusicPlaylist.Add(new MusicData
             {
-                Id = song.ObjectId,
+                ObjectId = song.ObjectId,
                 MusicName = song.Title,
                 Visible = true,
                 Votes = 1,

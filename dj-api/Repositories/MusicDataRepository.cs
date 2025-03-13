@@ -122,7 +122,7 @@ namespace dj_api.Repositories
         }
         public async Task<bool> VoteForSongAsync(string songId, string userId)
         {
-            var filter = Builders<MusicData>.Filter.Eq(m => m.Id, songId);
+            var filter = Builders<MusicData>.Filter.Eq(m => m.ObjectId, songId);
             var song = await _musicDataCollection.Find(filter).FirstOrDefaultAsync();
 
             if (song == null)
