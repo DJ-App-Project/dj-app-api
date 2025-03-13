@@ -164,9 +164,9 @@ namespace dj_api.Repositories
                 throw new Exception("Event not found.");
             }
 
-            if (eventy.MusicConfig.MusicPlaylist.Any(m => m.MusicName == song.Title))
+            if (eventy.MusicConfig.MusicPlaylist.Any(m => m.MusicName == song.Title && m.MusicArtist == song.Artist))
             {
-                return false;
+                return false; // Song is already in the event playlist
             }
 
             eventy.MusicConfig.MusicPlaylist.Add(new MusicData
