@@ -24,5 +24,14 @@ namespace dj_api.Repositories
         {
             return await _musicDataCollection.Find(m => m.Id == id).FirstOrDefaultAsync();
         }
+        public async Task<List<MusicData>> GetPaginatedMusicAsync(int page, int pageSize)
+        {
+            return await _musicDataCollection
+                .Find(_ => true)  
+                .Skip((page - 1) * pageSize) 
+                .Limit(pageSize) 
+                .ToListAsync();
+        }
+
     }
 }

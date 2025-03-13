@@ -2,6 +2,7 @@
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("api/GuestUsers")]
@@ -14,13 +15,36 @@ public class GuestUserController : ControllerBase
         _guestUserRepository = guestUserRepository;
     }
 
-    [HttpGet]
+    [SwaggerOperation(Summary = "DEPRECATED: Get all guest users (use paginated version)")]
+    [HttpGet("/guest-users-old")]
     [Authorize]
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await _guestUserRepository.GetAllUsersAsync();
         return Ok(users);
     }
+
+    [SwaggerOperation(Summary = "Get paginated guestuser data")]
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetAllGuestUsersPage([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        if (page < 1 || pageSize < 1)
+        {
+            return BadRequest("Page and pageSize must be greater than 0.");
+        }
+
+        var paginatedResult = await _guestUserRepository.GetPaginatedGuestUserAsync(page, pageSize);
+
+        if (paginatedResult.Count == 0)
+        {
+            return NotFound("No GuestUsers found.");
+        }
+
+        return Ok(paginatedResult);
+    }
+
+
 
     [HttpGet("{id}")]
     [Authorize]

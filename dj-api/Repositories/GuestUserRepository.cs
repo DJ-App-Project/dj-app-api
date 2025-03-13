@@ -46,5 +46,19 @@ namespace dj_api.Repositories
             await _guestUsersCollection.ReplaceOneAsync(user => user.Id == Convert.ToInt32(id), user);
         }
 
+        public async Task<List<GuestUser>> GetPaginatedGuestUserAsync(int page, int pageSize)
+        {
+            var totalCount = await _guestUsersCollection.CountDocumentsAsync(_ => true); 
+
+            var guestUsers = await _guestUsersCollection
+                .Find(_ => true) 
+                .Skip((page - 1) * pageSize) 
+                .Limit(pageSize) 
+                .ToListAsync();
+
+            return guestUsers;
+        }
+
+
     }
 }
