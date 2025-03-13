@@ -33,7 +33,7 @@ public class MusicDataController : ControllerBase
             return BadRequest("Page and pageSize must be greater than 0.");
         }
 
-        var paginatedResult = await _musicDataRepository.GetPaginatedMusicAsync(page, pageSize);
+        var paginatedResult = await _musicDataRepository.GetPaginatedMusicDataAsync(page, pageSize);
 
         if (paginatedResult.Count == 0)
         {

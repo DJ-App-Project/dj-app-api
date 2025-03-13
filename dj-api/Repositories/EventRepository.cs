@@ -15,8 +15,11 @@ namespace dj_api.Repositories
         private readonly IMemoryCache _memoryCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new()
         {
-            SlidingExpiration = TimeSpan.FromMinutes(30) 
+            SlidingExpiration = TimeSpan.FromMinutes(30) // Cache expiration policy
         };
+
+      
+        private static HashSet<string> _paginatedCacheKeys = new HashSet<string>();
 
         public EventRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
         {
@@ -24,7 +27,7 @@ namespace dj_api.Repositories
             _memoryCache = memoryCache;
         }
 
-
+      
         public async Task<List<Event>> GetAllEventsAsync()
         {
             const string cacheKey = "all_events";
@@ -35,10 +38,10 @@ namespace dj_api.Repositories
                 _memoryCache.Set(cacheKey, cachedEvents, _cacheEntryOptions);
             }
 
-            return cachedEvents ?? new List<Event>(); 
+            return cachedEvents ?? new List<Event>();
         }
 
-
+     
         public async Task<Event> GetEventByIdAsync(string id)
         {
             string cacheKey = $"event_{id}";
@@ -52,54 +55,63 @@ namespace dj_api.Repositories
                 }
             }
 
-            return cachedEvent ?? throw new Exception($"Event with ID {id} not found"); 
+            return cachedEvent ?? throw new Exception($"Event with ID {id} not found");
         }
 
-
+      
         public async Task CreateEventAsync(Event eventy)
         {
             var existing = await _eventsCollection.Find(e => e.Id == eventy.Id).FirstOrDefaultAsync();
             if (existing != null)
                 throw new Exception($"Event with ID {eventy.Id} already exists");
 
-            await _eventsCollection.InsertOneAsync(eventy); 
+            await _eventsCollection.InsertOneAsync(eventy);
 
-            
+          
             _memoryCache.Remove("all_events");
+            RemovePaginatedEventsCache();
         }
 
-       
         public async Task DeleteEventAsync(string id)
         {
             var existing = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
             if (existing == null)
                 throw new Exception($"Event with ID {id} does not exist");
 
-            await _eventsCollection.DeleteOneAsync(e => e.Id == id); 
+            await _eventsCollection.DeleteOneAsync(e => e.Id == id);
 
-           
+            // Invalidate cache
             _memoryCache.Remove($"event_{id}");
             _memoryCache.Remove("all_events");
+            RemovePaginatedEventsCache();
         }
 
-       
         public async Task UpdateEventAsync(string id, Event eventy)
         {
             var existingEvent = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
             if (existingEvent == null)
                 throw new Exception($"Event with ID {id} does not exist");
 
-            await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy); 
+            await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy);
 
-            
             _memoryCache.Remove($"event_{id}");
             _memoryCache.Remove("all_events");
+            RemovePaginatedEventsCache();
         }
 
-       
-        public async Task<Byte[]> GenerateQRCode(string EventId)
+        private void RemovePaginatedEventsCache()
         {
-            Byte[] qrCodeImg = null!;
+            foreach (var cacheKey in _paginatedCacheKeys)
+            {
+                _memoryCache.Remove(cacheKey);
+            }
+            _paginatedCacheKeys.Clear();
+        }
+
+     
+        public async Task<byte[]> GenerateQRCode(string EventId)
+        {
+            byte[] qrCodeImg;
             Event eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync();
             if (eventy == null)
                 throw new Exception($"Event with ID {EventId} does not exist");
@@ -108,16 +120,19 @@ namespace dj_api.Repositories
             using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(eventy.QRCodeText, QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
-                qrCodeImg = qrCode.GetGraphic(20); 
+                qrCodeImg = qrCode.GetGraphic(20);
             }
 
-            return qrCodeImg; 
+            return qrCodeImg;
         }
 
-
+       
         public async Task<List<Event>> GetPaginatedEventsAsync(int page, int pageSize)
         {
             string cacheKey = $"paginated_events_page_{page}_size_{pageSize}";
+
+          
+            _paginatedCacheKeys.Add(cacheKey);
 
             if (!_memoryCache.TryGetValue(cacheKey, out List<Event>? cachedEvents))
             {
@@ -130,7 +145,7 @@ namespace dj_api.Repositories
                 _memoryCache.Set(cacheKey, cachedEvents, _cacheEntryOptions);
             }
 
-            return cachedEvents ?? new List<Event>(); 
+            return cachedEvents ?? new List<Event>();
         }
     }
 }
