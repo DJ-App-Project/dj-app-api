@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/GuestUsers")]
-
-// API za delo z gosti
 public class GuestUserController : ControllerBase
 {
     private readonly GuestUserRepository _guestUserRepository;
@@ -17,16 +15,16 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> GetAllUsers()// GET api za vse goste
+    [Authorize]
+    public async Task<IActionResult> GetAllUsers()
     {
         var users = await _guestUserRepository.GetAllUsersAsync();
         return Ok(users);
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> GetUserById(string id)// GET api za enega gosta po ID
+    [Authorize]
+    public async Task<IActionResult> GetUserById(string id)
     {
         var user = await _guestUserRepository.GetUserByIdAsync(id);
         if (user == null)
@@ -36,7 +34,7 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> CreateUser(GuestUser user)// POST api za kreiranje novega gosta
     {
         if (user == null)
@@ -54,8 +52,8 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> DeleteUser(string id)// DELETE api za brisanje gosta po ID
+    [Authorize]
+    public async Task<IActionResult> DeleteUser(string id)
 
     {
         var user = await _guestUserRepository.GetUserByIdAsync(id);
@@ -74,8 +72,8 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> UpdateUser(string id, GuestUser newUser)// PUT api za posodabljanje gosta po ID
+    [Authorize]
+    public async Task<IActionResult> UpdateUser(string id, GuestUser newUser)
     {
         if (Convert.ToInt32(id) != newUser.Id)
             return BadRequest(); // če ID ni enak ID-ju gosta, vrni BadRequest

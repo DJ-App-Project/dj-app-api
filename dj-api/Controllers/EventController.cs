@@ -18,7 +18,7 @@ public class EventController : ControllerBase
 
 
     [HttpGet]// GET api za vse dogodke
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetAllEvents()
     {
         var events = await _eventsRepository.GetAllEventsAsync(); // pridobi vse dogodke
@@ -31,7 +31,7 @@ public class EventController : ControllerBase
 
 
     [HttpGet("{id}")]// GET api za en dogodek po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetEventById(string id)
     {
         var eventy = await _eventsRepository.GetEventByIdAsync(id); // pridobi dogodek po ID
@@ -43,7 +43,7 @@ public class EventController : ControllerBase
 
 
     [HttpPost]// POST api za kreiranje novega dogodka
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> CreateEvent(Event eventy)
     {
         if (eventy == null)
@@ -63,7 +63,7 @@ public class EventController : ControllerBase
     }
 
     [HttpDelete("{id}")]// DELETE api za brisanje dogodka po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> DeleteEvent(string id)
     {
         try
@@ -79,7 +79,7 @@ public class EventController : ControllerBase
 
 
     [HttpPut("{id}")]// PUT api za posodabljanje dogodka po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> UpdateEvent(string id, Event newEvent)
     {
         if (id != newEvent.Id)
@@ -94,7 +94,7 @@ public class EventController : ControllerBase
 
 
     [HttpGet("{id}/qrcode")]// GET api za png QR kodo dogodka po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetEventQrCode(string id)
     {
         var QRImg = await _eventsRepository.GenerateQRCode(id);
