@@ -37,6 +37,8 @@ namespace dj_api.Models
 
         [BsonElement("UpdatedAt")]
         public DateTime UpdatedAt { get; set; }
-        
+
+        //[BsonElement("DeletedAt")]
+        //public DateTime DeletedAt { get; set; }
     }
 }

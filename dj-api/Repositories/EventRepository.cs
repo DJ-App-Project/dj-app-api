@@ -1,4 +1,4 @@
-using dj_api.Data;
+﻿using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
@@ -27,17 +27,25 @@ namespace dj_api.Repositories
 
         public async Task CreateEventAsync(Event eventy)
         {
-            await _eventsCollection.InsertOneAsync(eventy);
+            var existing = await _eventsCollection.Find(e => e.Id == eventy.Id).FirstOrDefaultAsync();
+            if (existing != null)
+                throw new Exception($"Event s {eventy.Id} že obstaja"); // če event že obstaja, vrni Exception
+
+            await _eventsCollection.InsertOneAsync(eventy); // ustvari nov event
         }
 
-        public async Task DeleteEventAsync(string id)
+        public async Task DeleteEventAsync(string id) // brisanje eventa po ID
         {
+            var existing = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
+            if (existing == null)
+                throw new Exception($"Event s {id} ne obstaja"); // če event ne obstaja, vrni Exception
+
             await _eventsCollection.DeleteOneAsync(e => e.Id == id);
         }
 
         public async Task UpdateEventAsync(string id, Event eventy)
         {
-            await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy);
+            await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy); // posodobi event
         }
 
         //QR Code generacija iz teksta v bazi
@@ -46,18 +54,18 @@ namespace dj_api.Repositories
             Byte[] qrCodeImg = null;
             Event eventy;
 
-            eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync();
+            eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync(); // poišči event po ID
             if (eventy == null)
-                return null;
+                throw new Exception($"Event s {EventId} ne obstaja"); // če event ne obstaja, vrni Exception
 
             using (var qrGenerator = new QRCodeGenerator())
             using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(eventy.QRCodeText, QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
-                qrCodeImg = qrCode.GetGraphic(20);
+                qrCodeImg = qrCode.GetGraphic(20); // generiraj QR kodo iz teksta
             }
 
-            return qrCodeImg;
+            return qrCodeImg; // vrni QR kodo
         }
     }
 }

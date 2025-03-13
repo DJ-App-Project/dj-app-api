@@ -55,6 +55,8 @@ builder.Services.AddSingleton<EventRepository>();
 builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
+builder.Services.AddSingleton<SongRepository>();
+
 builder.Services.AddSingleton<TokenService>();
 
 builder.Services.AddControllers();
