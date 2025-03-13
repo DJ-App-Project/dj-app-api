@@ -8,10 +8,10 @@ namespace dj_api.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
         [BsonElement("MusicName")]
-        public string MusicName { get; set; }
+        public string MusicName { get; set; } = null!;
 
         [BsonElement("Visible")]
         public bool Visible { get; set; }
@@ -20,12 +20,12 @@ namespace dj_api.Models
         public int Votes { get; set; }
 
         [BsonElement("VotersIDs")]
-        public List<string> VotersIDs { get; set; }
+        public List<string> VotersIDs { get; set; } = null!;
 
         [BsonElement("IsUserRecommendation")]
         public bool IsUserRecommendation { get; set; }
 
         [BsonElement("RecommenderID")]
-        public string RecommenderID { get; set; }
+        public string RecommenderID { get; set; } = null!;
     }
 }
