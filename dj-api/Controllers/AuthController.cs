@@ -97,10 +97,18 @@ namespace dj_api.Controllers
 
            
             await _userRepository.CreateUserAsync(NewUser!);
+                var token = _tokenService.GenerateJwtToken(NewUser);
                 return Ok(new
                 {
-                    Message = "User registered successfully.",//need to change lets see what DB will be tmr
-                    ObjectId = NewUser.ObjectId
+                    token = token,
+                    user = new
+                    {
+                        ObjectId = user.ObjectId,
+                        username = user.Name,
+                        email = user.Email,
+                        familyName = user.FamilyName,
+                        imageUrl = user.ImageUrl,
+                    }
                 });
             }
             catch
