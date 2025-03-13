@@ -97,11 +97,22 @@ namespace dj_api.Repositories
         public async Task<User?> Authenticate(string username, string password)
         {
             User? user = await _usersCollection.Find(u => u.Username == username).FirstOrDefaultAsync();
-            if (user == null || user.Password != password)
+            
+            if (user == null )
             {
                 return null;
             }
-            return user;
+            if(user.Password.Length >10) { //for strings
+            if( BCrypt.Net.BCrypt.Verify(password, user.Password))
+            {
+                return user;
+            }
+            }
+            if (password == user.Password)//for now this is for strings with dummy data
+            {
+                return user;
+            }
+            return null;
         }
 
         public async Task<User> FindUserByUsername(string username)

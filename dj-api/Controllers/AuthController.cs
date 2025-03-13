@@ -41,7 +41,9 @@ namespace dj_api.Controllers
             {
                 return Unauthorized(new { error = "Invalid username or password" });
             }
+            
 
+            
             var token = _tokenService.GenerateJwtToken(user);
 
             return Ok(new
@@ -50,6 +52,7 @@ namespace dj_api.Controllers
                 user = new
                 {
                     ObjectId = user.ObjectId,
+                    name = user.Name,
                     username = user.Name,
                     email = user.Email,
                     familyName = user.FamilyName,
@@ -75,17 +78,18 @@ namespace dj_api.Controllers
             {
                 return Conflict("Username is already registered.");
             }
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.password);
 
             var NewUser = new User
             {
                
-                //ID je treba skinit
+               
                 Name = registerDto.name,
                 FamilyName = registerDto.familyName,
                 ImageUrl = registerDto.imageUrl,
                 Username = registerDto.username,
                 Email = registerDto.email,
-                Password = registerDto.password,
+                Password = hashedPassword,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.MinValue,
 
@@ -103,11 +107,12 @@ namespace dj_api.Controllers
                     token = token,
                     user = new
                     {
-                        ObjectId = user.ObjectId,
-                        username = user.Name,
-                        email = user.Email,
-                        familyName = user.FamilyName,
-                        imageUrl = user.ImageUrl,
+                        ObjectId = NewUser.ObjectId,
+                        username = NewUser.Username,
+                        name = NewUser.Name,
+                        email = NewUser.Email,
+                        familyName = NewUser.FamilyName,
+                        imageUrl = NewUser.ImageUrl,
                     }
                 });
             }
