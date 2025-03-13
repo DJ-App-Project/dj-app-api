@@ -120,6 +120,34 @@ namespace dj_api.Repositories
 
             return cachedMusicData;
         }
+        public async Task<bool> VoteForSongAsync(string songId, string userId)
+        {
+            var filter = Builders<MusicData>.Filter.Eq(m => m.Id, songId);
+            var song = await _musicDataCollection.Find(filter).FirstOrDefaultAsync();
 
+            if (song == null)
+            {
+                throw new Exception("Song not found.");
+            }
+
+            // Prevent double voting
+            if (song.VotersIDs.Contains(userId))
+            {
+                return false; // User has already voted for this song
+            }
+
+            // Increase vote count
+            song.Votes += 1;
+            song.VotersIDs.Add(userId);
+
+            // Update the song in the database
+            var update = Builders<MusicData>.Update
+                .Set(m => m.Votes, song.Votes)
+                .Set(m => m.VotersIDs, song.VotersIDs);
+
+            await _musicDataCollection.UpdateOneAsync(filter, update);
+
+            return true;
+        }
     }
 }

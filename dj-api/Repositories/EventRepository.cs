@@ -154,5 +154,38 @@ namespace dj_api.Repositories
             return cachedEvents ?? new List<Event>();
         }
 
+        public async Task<bool> AddSongToEventAsync(string eventId, Song song, string userId)
+        {
+            var eventFilter = Builders<Event>.Filter.Eq(e => e.Id, eventId);
+            var eventy = await _eventsCollection.Find(eventFilter).FirstOrDefaultAsync();
+
+            if (eventy == null)
+            {
+                throw new Exception("Event not found.");
+            }
+
+            if (eventy.MusicConfig.MusicPlaylist.Any(m => m.MusicName == song.Title))
+            {
+                return false;
+            }
+
+            eventy.MusicConfig.MusicPlaylist.Add(new MusicData
+            {
+                Id = song.ObjectId,
+                MusicName = song.Title,
+                Visible = true,
+                Votes = 1,
+                VotersIDs = new List<string> { userId },
+                IsUserRecommendation = true,
+                RecommenderID = userId
+            });
+
+            var update = Builders<Event>.Update.Set(e => e.MusicConfig, eventy.MusicConfig);
+            await _eventsCollection.UpdateOneAsync(eventFilter, update);
+
+            return true;
+        }
+
+
     }
 }
