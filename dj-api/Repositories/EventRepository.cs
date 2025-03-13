@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using dj_api.ApiModels.Event.Get;
 
 namespace dj_api.Repositories
 {
@@ -74,13 +75,11 @@ namespace dj_api.Repositories
 
         public async Task DeleteEventAsync(string id)
         {
-            var existing = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
-            if (existing == null)
-                throw new Exception($"Event with ID {id} does not exist");
+           
 
-            await _eventsCollection.DeleteOneAsync(e => e.Id == id);
+            await _eventsCollection.DeleteOneAsync(e => e.ObjectId == id);
 
-            // Invalidate cache
+            
             _memoryCache.Remove($"event_{id}");
             _memoryCache.Remove("all_events");
             RemovePaginatedEventsCache();
@@ -110,7 +109,7 @@ namespace dj_api.Repositories
         public async Task<byte[]> GenerateQRCode(string EventId)
         {
             byte[] qrCodeImg;
-            Event eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync();
+            Event eventy = await _eventsCollection.Find(e => e.ObjectId == EventId).FirstOrDefaultAsync();
             if (eventy == null)
                 throw new Exception($"Event with ID {EventId} does not exist");
 
@@ -125,22 +124,28 @@ namespace dj_api.Repositories
         }
 
 
-        public async Task<List<Event>> GetPaginatedEventsAsync(int page, int pageSize)
+        public async Task<List<EventGet>> GetPaginatedEventsAsync(int page, int pageSize)
         {
             string cacheKey = $"paginated_events_page_{page}_size_{pageSize}";
 
             _paginatedCacheKeys.Add(cacheKey);
 
-            if (!_memoryCache.TryGetValue(cacheKey, out List<Event>? cachedEvents))
+            if (!_memoryCache.TryGetValue(cacheKey, out List<EventGet>? cachedEvents))
             {
+                var projection = Builders<Event>.Projection
+             .Include(e => e.ObjectId)  
+             .Include(e => e.QRCodeText)
+             .Include(e=> e.DJId);       
+
+               
                 cachedEvents = await _eventsCollection
                     .Find(_ => true)
+                    .Project<EventGet>(projection) 
                     .Skip((page - 1) * pageSize)
                     .Limit(pageSize)
                     .ToListAsync();
 
-              
-                cachedEvents ??= new List<Event>();
+                cachedEvents ??= new List<EventGet>();
 
                
                 if (cachedEvents.Count > 0)
@@ -149,8 +154,8 @@ namespace dj_api.Repositories
                 }
             }
 
-            return cachedEvents ?? new List<Event>();
+            return cachedEvents ?? new List<EventGet>();
         }
-
+        
     }
 }
