@@ -2,6 +2,7 @@
 using dj_api.Models;
 using MongoDB.Driver;
 using Microsoft.Extensions.Caching.Memory;
+using dj_api.ApiModels;
 
 namespace dj_api.Repositories
 {
@@ -13,6 +14,8 @@ namespace dj_api.Repositories
         {
             SlidingExpiration = TimeSpan.FromMinutes(30)
         };
+
+        private static HashSet<string> _paginatedCacheKeys = new HashSet<string>();
 
         public UserRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
         {
@@ -28,7 +31,7 @@ namespace dj_api.Repositories
                 cachedUsers = await _usersCollection.Find(_ => true).ToListAsync();
                 _memoryCache.Set(cacheKey, cachedUsers, _cacheEntryOptions);
             }
-            return cachedUsers ?? new List<User>(); 
+            return cachedUsers ?? new List<User>();
         }
 
         public async Task<User> GetUserByIdAsync(string id)
@@ -36,7 +39,7 @@ namespace dj_api.Repositories
             string cacheKey = $"user_{id}";
             if (!_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
             {
-                cachedUser = await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
+                cachedUser = await _usersCollection.Find(user => user.ObjectId == id).FirstOrDefaultAsync();
                 if (cachedUser != null)
                 {
                     _memoryCache.Set(cacheKey, cachedUser, _cacheEntryOptions);
@@ -47,33 +50,51 @@ namespace dj_api.Repositories
 
         public async Task CreateUserAsync(User newUser)
         {
-            var existing = await _usersCollection.Find(user => user.Id == newUser.Id).FirstOrDefaultAsync();
-            if (existing != null)
-                throw new Exception($"User s {newUser.Id} že obstaja");
-
+          
             if (_usersCollection.Find(user => user.Username == newUser.Username || user.Email == newUser.Email).Any())
-                throw new Exception($"Username ali email že uporabljen");
+                throw new Exception($"Username or email already in use");
 
+           
             await _usersCollection.InsertOneAsync(newUser);
+
+          
             _memoryCache.Remove("all_users");
+            RemovePaginatedUserCache();
         }
 
         public async Task DeleteUserAsync(string id)
         {
-            var existing = await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
+            var existing = await _usersCollection.Find(user => user.ObjectId == id).FirstOrDefaultAsync();
             if (existing == null)
-                throw new Exception($"User s {id} ne obstaja");
+                throw new Exception($"User with ID {id} not found");
 
             await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id));
+
+          
             _memoryCache.Remove($"user_{id}");
             _memoryCache.Remove("all_users");
+            RemovePaginatedUserCache();
         }
 
         public async Task UpdateUserAsync(string id, User user)
         {
-            await _usersCollection.ReplaceOneAsync(u => u.Id == Convert.ToInt32(id), user);
+            await _usersCollection.ReplaceOneAsync(u => u.ObjectId == id, user);
+
+           
             _memoryCache.Remove($"user_{id}");
             _memoryCache.Remove("all_users");
+            RemovePaginatedUserCache();
+        }
+
+        private void RemovePaginatedUserCache()
+        {
+         
+            foreach (var cacheKey in _paginatedCacheKeys)
+            {
+                _memoryCache.Remove(cacheKey);
+            }
+          
+            _paginatedCacheKeys.Clear();
         }
 
         public async Task<User?> Authenticate(string username, string password)
@@ -99,6 +120,10 @@ namespace dj_api.Repositories
         public async Task<List<User>> GetPaginatedUserAsync(int page, int pageSize)
         {
             string cacheKey = $"paginated_users_page_{page}_size_{pageSize}";
+
+           
+            _paginatedCacheKeys.Add(cacheKey);
+
             if (!_memoryCache.TryGetValue(cacheKey, out List<User>? cachedUsers))
             {
                 cachedUsers = await _usersCollection
