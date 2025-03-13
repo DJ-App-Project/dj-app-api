@@ -43,7 +43,7 @@ namespace dj_api.Repositories
             string cacheKey = $"music_data_{id}";
             if (!_memoryCache.TryGetValue(cacheKey, out MusicData? cachedMusicData))
             {
-                cachedMusicData = await _musicDataCollection.Find(m => m.Id == id).FirstOrDefaultAsync();
+                cachedMusicData = await _musicDataCollection.Find(m => m.ObjectId == id).FirstOrDefaultAsync();
                 if (cachedMusicData != null)
                 {
                     _memoryCache.Set(cacheKey, cachedMusicData, _cacheEntryOptions);
@@ -54,9 +54,9 @@ namespace dj_api.Repositories
 
         public async Task CreateMusicDataAsync(MusicData musicData)
         {
-            var existing = await _musicDataCollection.Find(m => m.Id == musicData.Id).FirstOrDefaultAsync();
+            var existing = await _musicDataCollection.Find(m => m.ObjectId == musicData.ObjectId).FirstOrDefaultAsync();
             if (existing != null)
-                throw new Exception($"MusicData with ID {musicData.Id} already exists");
+                throw new Exception($"MusicData with ID {musicData.ObjectId} already exists");
 
             await _musicDataCollection.InsertOneAsync(musicData);
 
@@ -67,7 +67,7 @@ namespace dj_api.Repositories
 
         public async Task DeleteMusicDataAsync(string id)
         {
-            await _musicDataCollection.DeleteOneAsync(m => m.Id == id);
+            await _musicDataCollection.DeleteOneAsync(m => m.ObjectId == id);
 
        
             _memoryCache.Remove($"music_data_{id}");
@@ -77,7 +77,7 @@ namespace dj_api.Repositories
 
         public async Task UpdateMusicDataAsync(string id, MusicData musicData)
         {
-            await _musicDataCollection.ReplaceOneAsync(m => m.Id == id, musicData);
+            await _musicDataCollection.ReplaceOneAsync(m => m.ObjectId == id, musicData);
 
           
             _memoryCache.Remove($"music_data_{id}");
