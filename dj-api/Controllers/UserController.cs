@@ -17,7 +17,7 @@ public class UserController : ControllerBase
     }
   
   [HttpGet]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetAllUsers()// GET api za vse uporabnike
     {
         var users = await _userRepository.GetAllUsersAsync();
@@ -25,7 +25,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetUserById(string id) // GET api za enega uporabnika po ID
     {
         var user = await _userRepository.GetUserByIdAsync(id);
@@ -35,7 +35,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> CreateUser(User user) // POST api za kreiranje novega uporabnika
     {
         if (user == null)
@@ -54,7 +54,7 @@ public class UserController : ControllerBase
 
 
 	[HttpDelete("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> DeleteUser(string id) // DELETE api za brisanje uporabnika po ID
     {
         var user = await _userRepository.GetUserByIdAsync(id);
@@ -73,7 +73,7 @@ public class UserController : ControllerBase
     }
 
 	[HttpPut("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> UpdateUser(string id, User newUser) // PUT api za posodabljanje uporabnika po ID
     {
         if (Convert.ToInt32(id) != newUser.Id)

@@ -107,7 +107,7 @@ public class EventController : ControllerBase
     }
 
     [HttpGet("{id}/music-details")] //GET API Za pridobitev muzik v DJ-jovem playlistu in pregledom s voti. 
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> GetMusicDetailsForEvent(string id)
     {
         var eventy = await _eventsRepository.GetEventByIdAsync(id);
