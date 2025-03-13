@@ -2,6 +2,7 @@
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("api/users")]
@@ -15,13 +16,34 @@ public class UserController : ControllerBase
     {
         _userRepository = userRepository;
     }
-  
-  [HttpGet]
+
+
+    [SwaggerOperation(Summary = "DEPRECATED: Get all users (use paginated version)")]
+    [HttpGet("/user-old")]
     [Authorize]
     public async Task<IActionResult> GetAllUsers()// GET api za vse uporabnike
     {
         var users = await _userRepository.GetAllUsersAsync();
         return Ok(users);
+    }
+    [SwaggerOperation(Summary = "Get paginated user data")]
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetAllUserPage([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        if (page < 1 || pageSize < 1)
+        {
+            return BadRequest("Page and pageSize must be greater than 0.");
+        }
+
+        var paginatedResult = await _userRepository.GetPaginatedUserAsync(page, pageSize);
+
+        if (paginatedResult.Count == 0)
+        {
+            return NotFound("No Users found.");
+        }
+
+        return Ok(paginatedResult);
     }
 
     [HttpGet("{id}")]

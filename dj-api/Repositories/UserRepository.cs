@@ -70,6 +70,14 @@ namespace dj_api.Repositories
         {
             return await _usersCollection.Find(user =>   user.Email == email).FirstOrDefaultAsync();
         }
+        public async Task<List<User>> GetPaginatedUserAsync(int page, int pageSize)
+        {
+            return await _usersCollection
+                .Find(_ => true)  
+                .Skip((page - 1) * pageSize) 
+                .Limit(pageSize) 
+                .ToListAsync();
+        }
 
     }
 }

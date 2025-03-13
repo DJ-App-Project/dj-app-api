@@ -51,7 +51,7 @@ namespace dj_api.Repositories
         //QR Code generacija iz teksta v bazi
         public async Task<Byte[]> GenerateQRCode(string EventId)
         {
-            Byte[] qrCodeImg = null;
+            Byte[] qrCodeImg = null!;
             Event eventy;
 
             eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync(); // poišči event po ID
@@ -66,6 +66,18 @@ namespace dj_api.Repositories
             }
 
             return qrCodeImg; // vrni QR kodo
+        }
+        public async Task<List<Event>> GetPaginatedEventsAsync(int page, int pageSize)
+        {
+            var totalCount = await _eventsCollection.CountDocumentsAsync(_ => true); 
+
+            var events = await _eventsCollection
+                .Find(_ => true) 
+                .Skip((page - 1) * pageSize) 
+                .Limit(pageSize) 
+                .ToListAsync();
+
+            return events;
         }
     }
 }

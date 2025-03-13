@@ -2,6 +2,7 @@
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("api/event")]
@@ -16,8 +17,8 @@ public class EventController : ControllerBase
         _eventsRepository = eventRepository;
     }
 
-
-    [HttpGet]// GET api za vse dogodke
+    [SwaggerOperation(Summary = "DEPRECATED: Get all events (use paginated version)")]
+    [HttpGet("/events-old")]
     [Authorize]
     public async Task<IActionResult> GetAllEvents()
     {
@@ -28,6 +29,28 @@ public class EventController : ControllerBase
         }
         return NotFound(); // če ni dogodkov, vrni NotFound
     }
+    [SwaggerOperation(Summary = "Get paginated events data")]
+    [HttpGet]// GET api za vse dogodke
+    [Authorize]
+    public async Task<IActionResult> GetAllEventsPage([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        if (page < 1 || pageSize < 1)
+        {
+            return BadRequest("Page and pageSize must be greater than 0.");
+        }
+
+        var paginatedResult = await _eventsRepository.GetPaginatedEventsAsync(page, pageSize);
+
+        if (paginatedResult.Count == 0)
+        {
+            return NotFound("No events found.");
+        }
+
+        return Ok(paginatedResult);
+    }
+
+
+
 
 
     [HttpGet("{id}")]// GET api za en dogodek po ID

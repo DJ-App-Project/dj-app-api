@@ -90,6 +90,7 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+    c.EnableAnnotations();
 });
 
 var app = builder.Build();
