@@ -8,7 +8,7 @@ namespace dj_api.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string ObjectId { get; set; }
 
         [BsonElement("title")]
         public string Title { get; set; }

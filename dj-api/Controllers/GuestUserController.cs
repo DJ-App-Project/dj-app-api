@@ -35,7 +35,7 @@ public class GuestUserController : ControllerBase
             return BadRequest("Page and pageSize must be greater than 0.");
         }
 
-        var paginatedResult = await _guestUserRepository.GetPaginatedGuestUserAsync(page, pageSize);
+        var paginatedResult = await _guestUserRepository.GetPaginatedUserAsync(page, pageSize);
 
         if (paginatedResult.Count == 0)
         {

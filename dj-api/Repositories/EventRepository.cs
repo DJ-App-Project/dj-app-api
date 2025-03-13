@@ -126,12 +126,11 @@ namespace dj_api.Repositories
             return qrCodeImg;
         }
 
-       
+
         public async Task<List<Event>> GetPaginatedEventsAsync(int page, int pageSize)
         {
             string cacheKey = $"paginated_events_page_{page}_size_{pageSize}";
 
-          
             _paginatedCacheKeys.Add(cacheKey);
 
             if (!_memoryCache.TryGetValue(cacheKey, out List<Event>? cachedEvents))
@@ -142,10 +141,18 @@ namespace dj_api.Repositories
                     .Limit(pageSize)
                     .ToListAsync();
 
-                _memoryCache.Set(cacheKey, cachedEvents, _cacheEntryOptions);
+              
+                cachedEvents ??= new List<Event>();
+
+               
+                if (cachedEvents.Count > 0)
+                {
+                    _memoryCache.Set(cacheKey, cachedEvents, _cacheEntryOptions);
+                }
             }
 
             return cachedEvents ?? new List<Event>();
         }
+
     }
 }

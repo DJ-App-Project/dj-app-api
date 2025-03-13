@@ -118,7 +118,6 @@ namespace dj_api.Repositories
         {
             string cacheKey = $"paginated_users_page_{page}_size_{pageSize}";
 
-           
             _paginatedCacheKeys.Add(cacheKey);
 
             if (!_memoryCache.TryGetValue(cacheKey, out List<User>? cachedUsers))
@@ -129,10 +128,15 @@ namespace dj_api.Repositories
                     .Limit(pageSize)
                     .ToListAsync();
 
-                _memoryCache.Set(cacheKey, cachedUsers, _cacheEntryOptions);
+                cachedUsers ??= new List<User>();
+                if (cachedUsers.Any())
+                {
+                    _memoryCache.Set(cacheKey, cachedUsers, _cacheEntryOptions);
+                }
             }
 
-            return cachedUsers!;
+            return cachedUsers;
         }
+
     }
 }
