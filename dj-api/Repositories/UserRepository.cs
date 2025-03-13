@@ -1,83 +1,116 @@
 ﻿using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace dj_api.Repositories
 {
     public class UserRepository
     {
         private readonly IMongoCollection<User> _usersCollection;
+        private readonly IMemoryCache _memoryCache;
+        private readonly MemoryCacheEntryOptions _cacheEntryOptions = new()
+        {
+            SlidingExpiration = TimeSpan.FromMinutes(30)
+        };
 
-        public UserRepository(MongoDbContext dbContext)
+        public UserRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
         {
             _usersCollection = dbContext.GetCollection<User>("User");
+            _memoryCache = memoryCache;
         }
-      
+
         public async Task<List<User>> GetAllUsersAsync()
         {
-            return await _usersCollection.Find(_ => true).ToListAsync();
+            const string cacheKey = "all_users";
+            if (!_memoryCache.TryGetValue(cacheKey, out List<User>? cachedUsers))
+            {
+                cachedUsers = await _usersCollection.Find(_ => true).ToListAsync();
+                _memoryCache.Set(cacheKey, cachedUsers, _cacheEntryOptions);
+            }
+            return cachedUsers ?? new List<User>(); 
         }
 
         public async Task<User> GetUserByIdAsync(string id)
         {
-            return await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
+            string cacheKey = $"user_{id}";
+            if (!_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
+            {
+                cachedUser = await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
+                if (cachedUser != null)
+                {
+                    _memoryCache.Set(cacheKey, cachedUser, _cacheEntryOptions);
+                }
+            }
+            return cachedUser!;
         }
 
-        public async Task CreateUserAsync(User NewUser)
+        public async Task CreateUserAsync(User newUser)
         {
-            var existing = await _usersCollection.Find(user => user.Id == NewUser.Id).FirstOrDefaultAsync(); // preveri, če uporabnik že obstaja
+            var existing = await _usersCollection.Find(user => user.Id == newUser.Id).FirstOrDefaultAsync();
             if (existing != null)
-                throw new Exception($"User s {NewUser.Id} že obstaja"); // če uporabnik že obstaja, vrni Exception
+                throw new Exception($"User s {newUser.Id} že obstaja");
 
-            if (_usersCollection.Find(user => user.Username == NewUser.Username || user.Email == NewUser.Email).Any()) 
-                throw new Exception($"Username ali email že uporabljen"); // če uporabnik z emailom ali usernamom že obstaja, vrni Exception
+            if (_usersCollection.Find(user => user.Username == newUser.Username || user.Email == newUser.Email).Any())
+                throw new Exception($"Username ali email že uporabljen");
 
-            await _usersCollection.InsertOneAsync(NewUser); // ustvari novega uporabnika
+            await _usersCollection.InsertOneAsync(newUser);
+            _memoryCache.Remove("all_users");
         }
 
         public async Task DeleteUserAsync(string id)
         {
             var existing = await _usersCollection.Find(user => user.Id == Convert.ToInt32(id)).FirstOrDefaultAsync();
             if (existing == null)
-                throw new Exception($"User s {id} ne obstaja"); // če uporabnik ne obstaja, vrni Exception
+                throw new Exception($"User s {id} ne obstaja");
 
-            await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id)); // izbriši uporabnika
+            await _usersCollection.DeleteOneAsync(user => user.Id == Convert.ToInt32(id));
+            _memoryCache.Remove($"user_{id}");
+            _memoryCache.Remove("all_users");
         }
 
         public async Task UpdateUserAsync(string id, User user)
         {
-            await _usersCollection.ReplaceOneAsync(user => user.Id == Convert.ToInt32(id), user);
+            await _usersCollection.ReplaceOneAsync(u => u.Id == Convert.ToInt32(id), user);
+            _memoryCache.Remove($"user_{id}");
+            _memoryCache.Remove("all_users");
         }
+
         public async Task<User?> Authenticate(string username, string password)
-        { 
+        {
             User? user = await _usersCollection.Find(u => u.Username == username).FirstOrDefaultAsync();
-            if (user == null)
+            if (user == null || user.Password != password)
             {
                 return null;
             }
-            //bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.Password); later when we have BCrypt
-            if (user.Password != password)
-            {
-                return null; 
-            }
             return user;
         }
+
         public async Task<User> FindUserByUsername(string username)
         {
-            return await _usersCollection.Find(user => user.Username == username ).FirstOrDefaultAsync();
-        }
-        public async Task<User> FindUserByEmail( string email)
-        {
-            return await _usersCollection.Find(user =>   user.Email == email).FirstOrDefaultAsync();
-        }
-        public async Task<List<User>> GetPaginatedUserAsync(int page, int pageSize)
-        {
-            return await _usersCollection
-                .Find(_ => true)  
-                .Skip((page - 1) * pageSize) 
-                .Limit(pageSize) 
-                .ToListAsync();
+            return await _usersCollection.Find(user => user.Username == username).FirstOrDefaultAsync();
         }
 
+        public async Task<User> FindUserByEmail(string email)
+        {
+            return await _usersCollection.Find(user => user.Email == email).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<User>> GetPaginatedUserAsync(int page, int pageSize)
+        {
+            string cacheKey = $"paginated_users_page_{page}_size_{pageSize}";
+            if (!_memoryCache.TryGetValue(cacheKey, out List<User>? cachedUsers))
+            {
+                cachedUsers = await _usersCollection
+                    .Find(_ => true)
+                    .Skip((page - 1) * pageSize)
+                    .Limit(pageSize)
+                    .ToListAsync();
+
+                _memoryCache.Set(cacheKey, cachedUsers, _cacheEntryOptions);
+            }
+
+            return cachedUsers!;
+        }
     }
 }
