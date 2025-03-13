@@ -34,7 +34,7 @@ public class GuestUserController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [Authorize]
     public async Task<IActionResult> CreateUser(GuestUser user)// POST api za kreiranje novega gosta
     {
         if (user == null)
