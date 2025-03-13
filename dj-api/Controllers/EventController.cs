@@ -1,4 +1,5 @@
-﻿using dj_api.Models;
+﻿using dj_api.ApiModels.Event.Post;
+using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ using Swashbuckle.AspNetCore.Annotations;
 public class EventController : ControllerBase
 {
     private readonly EventRepository _eventsRepository;
+    private readonly UserRepository _userRepository;
 
-    public EventController(EventRepository eventRepository) // konstruktor za EventController
+    public EventController(EventRepository eventRepository, UserRepository userRepository) // konstruktor za EventController
     {
         _eventsRepository = eventRepository;
+        _userRepository = userRepository;
     }
 
     [SwaggerOperation(Summary = "DEPRECATED: Get all events (use paginated version)")]
@@ -48,10 +51,6 @@ public class EventController : ControllerBase
 
         return Ok(paginatedResult);
     }
-
-
-
-
 
     [HttpGet("{id}")]// GET api za en dogodek po ID
     [Authorize]
@@ -153,4 +152,116 @@ public class EventController : ControllerBase
         return Ok(musicDetails);
     }
 
+    [HttpPost("/CreateEvent")]
+    [Authorize]
+    public async Task<IActionResult> CreateEvent(CreateEventPost data)
+    {
+        if(data == null)
+        {
+            return BadRequest("Data missing");
+        }
+        var user = _userRepository.GetUserByIdAsync(data.DjId);
+        if(user == null)
+        {
+            return BadRequest("DjId is not a user");
+        }
+        try
+        {
+            Event newEvent = new Event
+            {
+                DJId = data.DjId,
+                QRCodeText = data.QRCodeText,
+                MusicConfig = new Event.MusicConfigClass()
+            };
+            await _eventsRepository.CreateEventAsync(newEvent);
+            return Ok(new
+            {
+                Message = "Event created successfully.",
+                ObjectId = newEvent.ObjectId
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error when creating Event");
+        }
+    }
+
+    [HttpPost("/SetEnableUserRecommendation")]
+    [Authorize]
+    public async Task<IActionResult> SetEnableUserRecommendation(SetEnableUserRecommendationPost data)
+    {
+        if(data == null)
+        {
+            return BadRequest("Request error");
+        }
+        var Event = await _eventsRepository.GetEventByIdAsync(data.ObjectId);
+        if(Event == null)
+        {
+            return BadRequest("Event doesn't exist");
+        }
+        try
+        {
+            Event.MusicConfig.EnableUserRecommendation = data.EnableUserRecommendation;
+            await _eventsRepository.UpdateEventAsync(Event.ObjectId, Event);
+
+            return Ok();    
+        }
+        catch (Exception ex) {
+            return BadRequest("Error when SetEnableUserRecommendation");
+        };
+        
+
+
+    }
+
+
+    [HttpPost("/AddMusicToEvent")]
+    [Authorize]
+    public async Task<IActionResult> AddMusicToEvent(AddMusicToEventModelPost data)
+    {
+        if(data==null)
+        {
+            return BadRequest("data invalid");
+        }
+        var Event = await _eventsRepository.GetEventByIdAsync(data.EvendId);
+        if (Event == null)
+        {
+            return BadRequest("Event doesn't exist");
+        }
+        var User = await _userRepository.GetUserByIdAsync(data.RecommenderID);
+        if (User == null)
+        {
+            return BadRequest("User doesn't exist");
+        }
+        try
+        {
+            MusicData newMusic = new MusicData()
+            {
+                MusicName = data.MusicName,
+                MusicArtist = data.MusicArtist,
+                MusicGenre = data.MusicGenre,
+                Visible = data.Visible,
+                Votes = 0,
+                VotersIDs = [],
+                IsUserRecommendation = data.IsUserRecommendation,
+                RecommenderID = data.RecommenderID,
+
+            };
+            Event.MusicConfig.MusicPlaylist.Add(newMusic);
+            await _eventsRepository.UpdateEventAsync(Event.ObjectId, Event);
+
+            return Ok();
+        }
+        catch (Exception ex) 
+        {
+            return BadRequest("Error when addding music");
+        }
+    }
+
+    /*[HttpPost("/AddVoteToMusicEvent")]
+    [Authorize]
+    public async Task<IActionResult> AddVoteToMusicEvent()
+    {
+
+    }*/
 }

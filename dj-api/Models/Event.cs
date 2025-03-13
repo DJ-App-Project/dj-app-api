@@ -25,10 +25,10 @@ namespace dj_api.Models
         public class MusicConfigClass
         {
             [BsonElement("MusicPlaylist")]
-            public List<MusicData> MusicPlaylist { get; set; } = null!;
+            public List<MusicData> MusicPlaylist { get; set; } = new List<MusicData>()!;
 
             [BsonElement("EnableUserRecommendation")]
-            public bool EnableUserRecommendation { get; set; }
+            public bool EnableUserRecommendation { get; set; } = false;
         }
 
     }

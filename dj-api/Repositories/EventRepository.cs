@@ -48,7 +48,7 @@ namespace dj_api.Repositories
 
             if (!_memoryCache.TryGetValue(cacheKey, out Event? cachedEvent))
             {
-                cachedEvent = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
+                cachedEvent = await _eventsCollection.Find(e => e.ObjectId == id).FirstOrDefaultAsync();
                 if (cachedEvent != null)
                 {
                     _memoryCache.Set(cacheKey, cachedEvent, _cacheEntryOptions);
@@ -61,9 +61,9 @@ namespace dj_api.Repositories
       
         public async Task CreateEventAsync(Event eventy)
         {
-            var existing = await _eventsCollection.Find(e => e.Id == eventy.Id).FirstOrDefaultAsync();
+            var existing = await _eventsCollection.Find(e => e.ObjectId == eventy.ObjectId).FirstOrDefaultAsync();
             if (existing != null)
-                throw new Exception($"Event with ID {eventy.Id} already exists");
+                throw new Exception($"Event with ID {eventy.ObjectId} already exists");
 
             await _eventsCollection.InsertOneAsync(eventy);
 
@@ -88,11 +88,9 @@ namespace dj_api.Repositories
 
         public async Task UpdateEventAsync(string id, Event eventy)
         {
-            var existingEvent = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
-            if (existingEvent == null)
-                throw new Exception($"Event with ID {id} does not exist");
+            
 
-            await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy);
+            await _eventsCollection.ReplaceOneAsync(e => e.ObjectId == id, eventy);
 
             _memoryCache.Remove($"event_{id}");
             _memoryCache.Remove("all_events");
