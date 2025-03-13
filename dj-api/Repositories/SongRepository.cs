@@ -22,7 +22,7 @@ namespace dj_api.Repositories
 
         public SongRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
         {
-            _songsCollection = dbContext.GetCollection<Song>("songs");
+            _songsCollection = dbContext.GetCollection<Song>("Songs");
             _memoryCache = memoryCache;
         }
 
