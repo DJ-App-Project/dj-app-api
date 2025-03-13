@@ -3,6 +3,7 @@ using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/music-data")]
@@ -52,4 +53,24 @@ public class MusicDataController : ControllerBase
 
         return Ok(musicData);
     }
+
+    [HttpPost("vote/{id}")]
+    [Authorize]
+    public async Task<IActionResult> VoteForSong(string id)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+
+        var success = await _musicDataRepository.VoteForSongAsync(id, userId);
+        if (!success)
+        {
+            return BadRequest(new { message = "You have already voted for this song." });
+        }
+
+        return Ok(new { message = "Vote registered successfully!" });
+    }
+
 }

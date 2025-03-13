@@ -135,4 +135,36 @@ public class SongController : ControllerBase
 
         return Ok(paginatedResult);
     }
+
+    [HttpPost("request/{eventId}")]
+    [Authorize]
+    public async Task<IActionResult> RequestNewSong(string eventId, [FromBody] SongModel newSong)
+    {
+        if (newSong == null)
+        {
+            return BadRequest("Song data is missing.");
+        }
+
+        var existingSong = await _songRepository.FindSongByTitleAsync(newSong.Title);
+        if (existingSong != null)
+        {
+            return Conflict("Song already exists in the Songs collection.");
+        }
+
+        var song = new Song
+        {
+            Title = newSong.Title,
+            Artist = newSong.Artist,
+            Genre = newSong.Genre,
+            AddedAt = DateTime.UtcNow
+        };
+
+        await _songRepository.CreateSongAsync(song);
+
+        return Ok(new
+        {
+            message = "Song added successfully to Songs collection. Ask the event organizer to approve it."
+        });
+    }
+
 }

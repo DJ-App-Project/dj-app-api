@@ -3,6 +3,7 @@ using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/event")]
@@ -11,10 +12,12 @@ using Swashbuckle.AspNetCore.Annotations;
 public class EventController : ControllerBase
 {
     private readonly EventRepository _eventsRepository;
+    private readonly SongRepository _songRepository;
 
-    public EventController(EventRepository eventRepository) // konstruktor za EventController
+    public EventController(EventRepository eventRepository, SongRepository songRepository) // konstruktor za EventController
     {
         _eventsRepository = eventRepository;
+        _songRepository = songRepository;
     }
 
     [SwaggerOperation(Summary = "DEPRECATED: Get all events (use paginated version)")]
@@ -152,5 +155,55 @@ public class EventController : ControllerBase
 
         return Ok(musicDetails);
     }
+
+    [HttpGet("{id}/songs")] //Kinda duplicate, obdrz zeankrat
+    [Authorize]
+    public async Task<IActionResult> GetSongsForEvent(string id)
+    {
+        var eventy = await _eventsRepository.GetEventByIdAsync(id);
+        if (eventy == null)
+        {
+            return NotFound($"Event with ID {id} not found.");
+        }
+
+        var musicDetails = eventy.MusicConfig?.MusicPlaylist?
+            .OrderByDescending(m => m.Votes)
+            .Select(m => new
+            {
+                MusicName = m.MusicName,
+                Visible = m.Visible,
+                Votes = m.Votes,
+                IsUserRecommendation = m.IsUserRecommendation,
+                RecommenderID = m.RecommenderID
+            }).ToList();
+
+        return Ok(musicDetails);
+    }
+
+    [HttpPost("{eventId}/vote-unlisted/{songId}")]
+    [Authorize]
+    public async Task<IActionResult> VoteForUnlistedSong(string eventId, string songId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+
+        var song = await _songRepository.GetSongByIdAsync(songId);
+        if (song == null)
+        {
+            return NotFound(new { message = "Song not found in Songs collection." });
+        }
+
+        var success = await _eventsRepository.AddSongToEventAsync(eventId, song, userId);
+        if (!success)
+        {
+            return BadRequest(new { message = "Song is already in the event playlist." });
+        }
+
+        return Ok(new { message = "Song added to the event and first vote recorded!" });
+    }
+
 
 }
