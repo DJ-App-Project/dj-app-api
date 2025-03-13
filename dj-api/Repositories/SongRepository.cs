@@ -68,7 +68,7 @@ namespace dj_api.Repositories
                     .Limit(pageSize)
                     .ToListAsync();
 
-                if (cachedSongs != null && cachedSongs.Any()) 
+                if (cachedSongs != null && cachedSongs.Any())
                 {
                     _memoryCache.Set(cacheKey, cachedSongs, _cacheEntryOptions);
                 }
@@ -105,11 +105,6 @@ namespace dj_api.Repositories
             RemovePaginatedSongsCache();
         }
 
-        public async Task<Song?> FindSongByTitleAsync(string title)
-        {
-            return await _songsCollection.Find(song => song.Title == title).FirstOrDefaultAsync();
-        }
-
         public async Task<List<Song>> FindSongsByArtistAsync(string artist)
         {
             return await _songsCollection.Find(song => song.Artist == artist).ToListAsync();
@@ -123,5 +118,11 @@ namespace dj_api.Repositories
             }
             _paginatedCacheKeys.Clear();
         }
+        public async Task<Song?> FindSongByTitleAsync(string title)
+        {
+            return await _songsCollection.Find(song => song.Title.ToLower() == title.ToLower()).FirstOrDefaultAsync();
+        }
+
+
     }
 }

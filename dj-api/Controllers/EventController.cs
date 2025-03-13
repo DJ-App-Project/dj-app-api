@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/event")]
@@ -14,11 +15,13 @@ public class EventController : ControllerBase
 {
     private readonly EventRepository _eventsRepository;
     private readonly UserRepository _userRepository;
+    private readonly SongRepository _songRepository;
 
-    public EventController(EventRepository eventRepository, UserRepository userRepository) // konstruktor za EventController
+    public EventController(EventRepository eventRepository, UserRepository userRepository, SongRepository songRepository) // konstruktor za EventController
     {
         _eventsRepository = eventRepository;
         _userRepository = userRepository;
+        _songRepository = songRepository;
     }
 
     [SwaggerOperation(Summary = "DEPRECATED: Get all events (use paginated version)")]
@@ -27,11 +30,11 @@ public class EventController : ControllerBase
     public async Task<IActionResult> GetAllEvents()
     {
         var events = await _eventsRepository.GetAllEventsAsync();
-        if (events.Count > 0 && events != null) 
+        if (events.Count > 0 && events != null)
         {
-            return Ok(events); 
+            return Ok(events);
         }
-        return NotFound(); 
+        return NotFound();
     }
     [SwaggerOperation(Summary = "Get event based on EventId")]
     [HttpGet("{id}")]
@@ -50,12 +53,12 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> DeleteEvent(string EventId)
     {
-        if(EventId == null)
+        if (EventId == null)
         {
             return BadRequest("Invalid data");
         }
         var Event = _eventsRepository.GetEventByIdAsync(EventId);
-        if(Event == null)
+        if (Event == null)
         {
             return BadRequest("Event doesn't exist");
         }
@@ -66,7 +69,7 @@ public class EventController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message); 
+            return BadRequest(ex.Message);
         }
     }
 
@@ -109,7 +112,7 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMusicOfEvent(string EventId)
     {
-        if(EventId == null)
+        if (EventId == null)
         {
             return BadRequest("Error in data");
         }
@@ -123,7 +126,7 @@ public class EventController : ControllerBase
             MusicGenre = m.MusicGenre,
             Votes = m.Votes,
             Visible = m.Visible,
-            IsUserRecommendation = m.IsUserRecommendation, 
+            IsUserRecommendation = m.IsUserRecommendation,
         }).ToList() ?? new List<MusicGet>();
 
         if (Event == null)
@@ -138,12 +141,12 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> CreateEvent(CreateEventPost data)
     {
-        if(data == null)
+        if (data == null)
         {
             return BadRequest("Data missing");
         }
         var user = _userRepository.GetUserByIdAsync(data.DjId);
-        if(user == null)
+        if (user == null)
         {
             return BadRequest("DjId is not a user");
         }
@@ -173,12 +176,12 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SetEnableUserRecommendation(SetEnableUserRecommendationPost data)
     {
-        if(data == null)
+        if (data == null)
         {
             return BadRequest("Request error");
         }
         var Event = await _eventsRepository.GetEventByIdAsync(data.ObjectId);
-        if(Event == null)
+        if (Event == null)
         {
             return BadRequest("Event doesn't exist");
         }
@@ -187,12 +190,13 @@ public class EventController : ControllerBase
             Event.MusicConfig.EnableUserRecommendation = data.EnableUserRecommendation;
             await _eventsRepository.UpdateEventAsync(Event.ObjectId, Event);
 
-            return Ok();    
+            return Ok();
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             return BadRequest("Error when SetEnableUserRecommendation");
         };
-        
+
 
 
     }
@@ -202,7 +206,7 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> AddMusicToEvent(AddMusicToEventModelPost data)
     {
-        if(data==null)
+        if (data == null)
         {
             return BadRequest("data invalid");
         }
@@ -233,18 +237,23 @@ public class EventController : ControllerBase
             Event.MusicConfig.MusicPlaylist.Add(newMusic);
             await _eventsRepository.UpdateEventAsync(Event.ObjectId, Event);
 
-            return Ok();
+            // Extract relevant details and sort by votes (descending)
+            var musicDetails = Event.MusicConfig?.MusicPlaylist?
+                .OrderByDescending(m => m.Votes) //po votih padajoce
+                .Select(m => new
+                {
+                    MusicName = m.MusicName,
+                    Visible = m.Visible,
+                    Votes = m.Votes,
+                    IsUserRecommendation = m.IsUserRecommendation,
+                    RecommenderID = m.RecommenderID
+                }).ToList();
+
+            return Ok(musicDetails);
         }
-        catch (Exception ex) 
-        {
-            return BadRequest("Error when addding music");
-        }
+        catch (Exception ex) {
+            return BadRequest("Error");
+                }
+
     }
-
-    /*[HttpPost("/AddVoteToMusicEvent")]
-    [Authorize]
-    public async Task<IActionResult> AddVoteToMusicEvent()
-    {
-
-    }*/
 }
