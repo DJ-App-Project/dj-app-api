@@ -147,6 +147,8 @@ public class EventController : ControllerBase
             .Select(m => new
             {
                 MusicName = m.MusicName,
+                MusicArtist = m.MusicArtist,
+                MusicGenre = m.MusicGenre,
                 Visible = m.Visible,
                 Votes = m.Votes,
                 IsUserRecommendation = m.IsUserRecommendation,
@@ -156,29 +158,6 @@ public class EventController : ControllerBase
         return Ok(musicDetails);
     }
 
-    [HttpGet("{id}/songs")] //Kinda duplicate, obdrz zeankrat
-    [Authorize]
-    public async Task<IActionResult> GetSongsForEvent(string id)
-    {
-        var eventy = await _eventsRepository.GetEventByIdAsync(id);
-        if (eventy == null)
-        {
-            return NotFound($"Event with ID {id} not found.");
-        }
-
-        var musicDetails = eventy.MusicConfig?.MusicPlaylist?
-            .OrderByDescending(m => m.Votes)
-            .Select(m => new
-            {
-                MusicName = m.MusicName,
-                Visible = m.Visible,
-                Votes = m.Votes,
-                IsUserRecommendation = m.IsUserRecommendation,
-                RecommenderID = m.RecommenderID
-            }).ToList();
-
-        return Ok(musicDetails);
-    }
 
     [HttpPost("{eventId}/vote-unlisted/{songId}")]
     [Authorize]

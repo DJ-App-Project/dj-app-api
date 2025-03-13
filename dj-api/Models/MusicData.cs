@@ -16,6 +16,9 @@ namespace dj_api.Models
         [BsonElement("MusicArtist")]
         public string MusicArtist { get; set; } = null!;
 
+        [BsonElement("MusicGenre")]
+        public string MusicGenre { get; set; } = null!;
+
         [BsonElement("Visible")]
         public bool Visible { get; set; }
 
