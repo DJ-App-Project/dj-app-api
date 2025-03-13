@@ -109,10 +109,17 @@ namespace dj_api.Repositories
                     .Limit(pageSize)
                     .ToListAsync();
 
-                _memoryCache.Set(cacheKey, cachedMusicData, _cacheEntryOptions);
+                cachedMusicData ??= new List<MusicData>();
+
+             
+                if (cachedMusicData.Any())
+                {
+                    _memoryCache.Set(cacheKey, cachedMusicData, _cacheEntryOptions);
+                }
             }
 
-            return cachedMusicData ?? new List<MusicData>();
+            return cachedMusicData;
         }
+
     }
 }
