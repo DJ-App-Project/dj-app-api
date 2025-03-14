@@ -133,11 +133,17 @@ namespace dj_api.Repositories
             if (!_memoryCache.TryGetValue(cacheKey, out List<EventGet>? cachedEvents))
             {
                 var projection = Builders<Event>.Projection
-             .Include(e => e.ObjectId)  
+             .Include(e => e.ObjectId)
              .Include(e => e.QRCodeText)
-             .Include(e=> e.DJId);       
+             .Include(e => e.DJId)
+                .Include(e => e.Name)
+                .Include(e => e.Description)
+                .Include(e => e.Date)
+                .Include(e => e.Location)
+                .Include(e => e.Active);
 
-               
+
+
                 cachedEvents = await _eventsCollection
                     .Find(_ => true)
                     .Project<EventGet>(projection) 
