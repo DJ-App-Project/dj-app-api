@@ -236,7 +236,21 @@ public class EventController : ControllerBase
         {
             whoaddedSong = true;
         }
-        
+        var songTitle = _songRepository.FindSongByTitleAsync(data.MusicName);
+        var songArtist = _songRepository.FindSongsByArtistAsync(data.MusicArtist);
+        if(songArtist ==null || songTitle == null)
+        {
+            Song newSong = new Song
+            {
+                Title = data.MusicName,
+                Genre = data.MusicGenre,
+                Artist = data.MusicArtist,
+                AddedAt = DateTime.UtcNow,
+
+            };
+            await _songRepository.CreateSongAsync(newSong);
+        }
+
         try
         {
             MusicData newMusic = new MusicData()
