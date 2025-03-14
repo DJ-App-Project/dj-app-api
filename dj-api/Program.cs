@@ -56,7 +56,6 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
 // Add services to the container
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton<EventRepository>();
-builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
 builder.Services.AddSingleton<SongRepository>();
