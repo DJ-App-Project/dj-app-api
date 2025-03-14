@@ -107,7 +107,7 @@ namespace dj_api.Repositories
 
         public async Task<List<Song>> FindSongsByArtistAsync(string artist)
         {
-            return await _songsCollection.Find(song => song.Artist == artist).ToListAsync();
+            return await _songsCollection.Find(song => song.Artist.ToLower() == artist.ToLower()).ToListAsync();
         }
 
         private void RemovePaginatedSongsCache()
