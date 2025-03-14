@@ -122,7 +122,7 @@ public class EventController : ControllerBase
         var musicList = Event?.MusicConfig?.MusicPlaylist?
         .Select(m => new MusicGet
         {
-            ObjectId = m.ObjectId,
+           
             MusicName = m.MusicName,
             MusicArtist = m.MusicArtist,
             MusicGenre = m.MusicGenre,
@@ -374,8 +374,6 @@ public class EventController : ControllerBase
             return BadRequest(new { message = "Error when adding vote to song", error = ex.Message });
         }
     }
-
-
 
     [HttpPut("ChangeQRCodeText/{EventId}")]
     [Authorize]

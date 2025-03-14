@@ -5,9 +5,7 @@ namespace dj_api.ApiModels.Event.Get
 {
     public class MusicGet
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string ObjectId { get; set; } = null!;
+        
 
         [BsonElement("MusicName")]
         public string MusicName { get; set; } = null!;
