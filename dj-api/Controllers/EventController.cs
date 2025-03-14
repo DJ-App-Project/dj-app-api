@@ -155,6 +155,11 @@ public class EventController : ControllerBase
             Event newEvent = new Event
             {
                 DJId = userId,
+                Name = data.Name,
+                Description = data.Description,
+                Date = data.Date,
+                Location = data.Location,
+                Active = data.Active,
                 QRCodeText = data.QRCodeText,
                 MusicConfig = new Event.MusicConfigClass()
             };
