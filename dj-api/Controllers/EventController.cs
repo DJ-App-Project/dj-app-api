@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 [ApiController]
 [Route("api/event")]
@@ -39,7 +40,7 @@ public class EventController : ControllerBase
         return NotFound();
     }
     [SwaggerOperation(Summary = "Get event based on EventId")]
-    [HttpGet("{id}")]
+    [HttpGet("{EventId}")]
     [Authorize]
     public async Task<IActionResult> GetEventById(string EventId)
     {
@@ -285,7 +286,7 @@ public class EventController : ControllerBase
                     RecommenderID = m.RecommenderID
                 }).ToList();*/
 
-            return Ok(newMusic);
+            return Ok();
         }
         catch (Exception ex) {
             return BadRequest("Error");
@@ -375,6 +376,8 @@ public class EventController : ControllerBase
         }
     }
 
+
+    
     [HttpPut("ChangeQRCodeText/{EventId}")]
     [Authorize]
     public async Task<IActionResult> ChangeQRCodeText(ChangeQRCodeTextPut data,string EventId) 
@@ -399,6 +402,98 @@ public class EventController : ControllerBase
         }
     }
 
+    [HttpPut("RemoveVoteFromEvent/{EventId}")]
+    [Authorize]
+    public async Task<IActionResult> RemoveVoteFromEvent(string EventId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
 
+        var Event = await _eventsRepository.GetEventByIdAsync(EventId);
+        if (Event == null)
+        {
+            return BadRequest("Event doesn't exist");
+        }
+
+        bool hasUserVoted = Event.MusicConfig?.MusicPlaylist?
+            .Any(m => m.VotersIDs.Contains(userId)) ?? false;
+
+        if (!hasUserVoted)
+        {
+            return BadRequest("User didn't vote");
+        }
+
+        try
+        {
+            var votedSong = Event.MusicConfig?.MusicPlaylist?
+                .FirstOrDefault(m => m.VotersIDs?.Contains(userId) == true);
+
+            if (votedSong == null)
+            {
+                return BadRequest("Song doesn't exist");
+            }
+
+           
+            votedSong.Votes -= 1;
+
+           
+            votedSong.VotersIDs.Remove(userId);
+
+         
+            await _eventsRepository.UpdateEventAsync(EventId,Event);
+
+            return Ok(new { message = "Vote removed successfully" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "An error occurred", details = ex.Message });
+        }
+    }
+
+
+
+    [HttpPut("RemoveMusicFromEvent/{EventId}")]
+    [Authorize]
+    public async Task<IActionResult> RemoveMusicFromEvent(string EventId, [FromBody] MusicData musicData)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+
+        var Event = await _eventsRepository.GetEventByIdAsync(EventId);
+        if (Event == null)
+        {
+            return BadRequest("Event doesn't exist");
+        }
+
+      
+        var musicToRemove = Event.MusicConfig?.MusicPlaylist?
+            .FirstOrDefault(m => m.MusicName == musicData.MusicName && m.MusicArtist == musicData.MusicArtist);
+
+        if (musicToRemove == null)
+        {
+            return BadRequest("Music not found in event playlist");
+        }
+
+        try
+        {
+           
+            Event.MusicConfig.MusicPlaylist.Remove(musicToRemove);
+
+       
+            await _eventsRepository.UpdateEventAsync(EventId, Event);
+
+            return Ok(new { message = "Music removed successfully from the event." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "An error occurred while removing music.", details = ex.Message });
+        }
+    }
 
 }
