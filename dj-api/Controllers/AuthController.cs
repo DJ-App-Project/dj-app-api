@@ -25,9 +25,9 @@ namespace dj_api.Controllers
         {
             var user = new User
             {
-                ObjectId = "12345",  
-                Name = "Test User",  
-                Email = "testuser@example.com"  
+                ObjectId = "67d19c50f64702d730b8f646",  
+                Name = "Glenn",  
+                Email = "qsoto@gmail.com"
             };
             var token = _tokenService.GenerateJwtToken(user);
             return Ok(new { Token = token });

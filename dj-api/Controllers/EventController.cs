@@ -213,6 +213,7 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> AddMusicToEvent(AddMusicToEventModelPost data)
     {
+        bool whoaddedSong = true;
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
@@ -227,6 +228,14 @@ public class EventController : ControllerBase
         {
             return BadRequest("Event doesn't exist");
         }
+        if(userId == Event.DJId)
+        {
+            whoaddedSong = false;
+        }
+        else
+        {
+            whoaddedSong = true;
+        }
         
         try
         {
@@ -238,7 +247,7 @@ public class EventController : ControllerBase
                 Visible = data.Visible,
                 Votes = 0,
                 VotersIDs = [],
-                IsUserRecommendation = data.IsUserRecommendation,
+                IsUserRecommendation = whoaddedSong,
                 RecommenderID = userId,
 
             };
