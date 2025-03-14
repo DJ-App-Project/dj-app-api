@@ -89,7 +89,7 @@ public class EventController : ControllerBase
         }
         return NotFound(); // če QR koda ni generirana, vrni NotFound
     }
-
+    
     [SwaggerOperation(Summary = "Get paginated Events (only events)")]
     [HttpGet("/AllEvents")]
     [Authorize]
@@ -248,7 +248,7 @@ public class EventController : ControllerBase
         {
             Song newSong = new Song
             {
-                Title = data.MusicName,
+                Name = data.MusicName,
                 Genre = data.MusicGenre,
                 Artist = data.MusicArtist,
                 AddedAt = DateTime.UtcNow,
@@ -496,4 +496,16 @@ public class EventController : ControllerBase
         }
     }
 
+    [SwaggerOperation(Summary = "Get similar songs to existing playlist based on EventId")]
+    [HttpGet("{EventId}/SimilarSongs")]
+    [Authorize]
+    public async Task<IActionResult> GetSimilarSongs(string EventId)
+    {
+        List<Song>? similarSongs = new List<Song>();
+        similarSongs = await _eventsRepository.GetSilimarSongsToEvent(EventId);
+        if (similarSongs == null)
+            return NotFound();
+
+        return Ok(similarSongs);
+    }
 }

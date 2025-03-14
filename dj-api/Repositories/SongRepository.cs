@@ -1,4 +1,4 @@
-﻿using dj_api.Data;
+using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
 using Microsoft.Extensions.Caching.Memory;
@@ -41,7 +41,7 @@ namespace dj_api.Repositories
 
             return cachedSong ?? throw new Exception($"Song with ID {objectId} not found.");
         }
-
+      
         public async Task<List<Song>> GetAllSongsAsync()
         {
             const string cacheKey = "all_songs";
@@ -120,9 +120,9 @@ namespace dj_api.Repositories
         }
         public async Task<Song?> FindSongByTitleAsync(string title)
         {
-            return await _songsCollection.Find(song => song.Title.ToLower() == title.ToLower()).FirstOrDefaultAsync();
+            return await _songsCollection.Find(song => song.Name.ToLower() == title.ToLower()).FirstOrDefaultAsync();
         }
 
-        
+       
     }
 }

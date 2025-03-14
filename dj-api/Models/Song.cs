@@ -10,13 +10,13 @@ namespace dj_api.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string ObjectId { get; set; }
 
-        [BsonElement("title")]
-        public string Title { get; set; }
+        [BsonElement("Name")]
+        public string Name { get; set; }
 
-        [BsonElement("artist")]
+        [BsonElement("Artist")]
         public string Artist { get; set; }
 
-        [BsonElement("genre")]
+        [BsonElement("Genre")]
         public string Genre { get; set; }
 
         [BsonElement("addedAt")]

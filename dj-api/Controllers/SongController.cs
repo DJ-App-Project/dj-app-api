@@ -46,7 +46,8 @@ public class SongController : ControllerBase
         {
             return BadRequest("Song data missing");
         }
-        var SongTitleCheck = await _songRepository.FindSongByTitleAsync(newSong.Title);
+        var SongTitleCheck = await _songRepository.FindSongByTitleAsync(newSong.Name);
+
         
         var SongCheckArtist = await _songRepository.FindSongsByArtistAsync(newSong.Artist);
         if (SongTitleCheck != null || SongCheckArtist != null)
@@ -59,7 +60,7 @@ public class SongController : ControllerBase
             Song CreateSong = new Song
             {
 
-                Title = newSong.Title,
+                Name = newSong.Name,
                 Artist = newSong.Artist,
                 Genre = newSong.Genre,
                 AddedAt = DateTime.UtcNow,
@@ -108,7 +109,7 @@ public class SongController : ControllerBase
         Song newSong = new Song
         {
             ObjectId = ObjectId,
-            Title = UpdatedSong.Title,
+            Name = UpdatedSong.Name,
             AddedAt = existingSong.AddedAt,
             Artist = UpdatedSong.Artist,
             Genre = UpdatedSong.Genre
@@ -145,7 +146,8 @@ public class SongController : ControllerBase
             return BadRequest("Song data is missing.");
         }
 
-        var existingSong = await _songRepository.FindSongByTitleAsync(newSong.Title);
+        var existingSong = await _songRepository.FindSongByTitleAsync(newSong.Name);
+
         if (existingSong != null)
         {
             return Conflict("Song already exists in the Songs collection.");
@@ -153,7 +155,8 @@ public class SongController : ControllerBase
 
         var song = new Song
         {
-            Title = newSong.Title,
+            Name = newSong.Name,
+
             Artist = newSong.Artist,
             Genre = newSong.Genre,
             AddedAt = DateTime.UtcNow
@@ -166,5 +169,4 @@ public class SongController : ControllerBase
             message = "Song added successfully to Songs collection. Ask the event organizer to approve it."
         });
     }
-
 }

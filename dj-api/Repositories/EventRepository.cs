@@ -1,4 +1,4 @@
-﻿using dj_api.Data;
+using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
 using QRCoder;
@@ -10,12 +10,14 @@ using dj_api.ApiModels.Event.Get;
 using dj_api.ApiModels.Event.Post;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Reflection.Metadata.Ecma335;
 
 namespace dj_api.Repositories
 {
     public class EventRepository
     {
         private readonly IMongoCollection<Event> _eventsCollection;
+        private readonly IMongoCollection<Song> _songsCollection;
         private readonly IMemoryCache _memoryCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new()
         {
@@ -27,7 +29,9 @@ namespace dj_api.Repositories
         public EventRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
         {
             _eventsCollection = dbContext.GetCollection<Event>("DJEvent");
+            _songsCollection = dbContext.GetCollection<Song>("Songs");
             _memoryCache = memoryCache;
+
         }
 
         public async Task<List<Event>> GetAllEventsAsync()
@@ -118,7 +122,7 @@ namespace dj_api.Repositories
                 qrCodeImg = qrCode.GetGraphic(20);
             }
 
-            return qrCodeImg;
+            return qrCodeImg; // vrni QR kodo
         }
 
         public async Task<List<EventGet>> GetPaginatedEventsAsync(int page, int pageSize)
@@ -168,7 +172,7 @@ namespace dj_api.Repositories
             }
 
             if (eventy.MusicConfig.MusicPlaylist.Any(m =>
-                string.Equals(m.MusicName, song.Title, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(m.MusicName, song.Name, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(m.MusicArtist, song.Artist, StringComparison.OrdinalIgnoreCase)))
             {
                 return false;
@@ -177,7 +181,8 @@ namespace dj_api.Repositories
             eventy.MusicConfig.MusicPlaylist.Add(new MusicData
             {
                 ObjectId = song.ObjectId,
-                MusicName = song.Title,
+                MusicName = song.Name,
+
                 Visible = true,
                 Votes = 1,
                 VotersIDs = new List<string> { userId },
@@ -191,6 +196,68 @@ namespace dj_api.Repositories
             _memoryCache.Set($"event_{eventId}", eventy, _cacheEntryOptions);
 
             return true;
+        }
+
+        public async Task<List<Song>> GetSilimarSongsToEvent(string eventId)
+        {
+            var eventy = await _eventsCollection.Find(e => e.ObjectId == eventId).FirstOrDefaultAsync();
+
+            if (eventy == null)
+            {
+                return null;
+            }
+            var playlist = eventy.MusicConfig.MusicPlaylist.ToList();
+
+            if (playlist.Count == 0) //če je playlist prazen, vrni 10 random pesmi
+            {
+                var similarSongs = await _songsCollection
+                   .Find(_ => true)
+                   .Limit(10)
+                   .ToListAsync();
+
+                return similarSongs;
+            }
+
+            var genreCount = new Dictionary<string, int>();
+
+            foreach (var song in playlist)
+            {
+                if (song.MusicGenre == null) //če je music genre prazen preskočimo
+                {
+                    continue; 
+                }
+
+                if (!genreCount.ContainsKey(song.MusicGenre))
+                {
+                    genreCount.Add(song.MusicGenre, 1);
+                }
+                else
+                {
+                    genreCount[song.MusicGenre]++;
+                }
+            }
+
+            var leadGenre = "";
+            if (genreCount.Count > 0)
+            {
+                leadGenre = genreCount.OrderByDescending(x => x.Value).First().Key;
+                var playlistSongNames = playlist.Select(s => s.MusicName).ToList();
+                var similarSongs = await _songsCollection
+                   .Find(s => s.Genre == leadGenre && !playlistSongNames.Contains(s.Name))
+                   .Limit(10)
+                   .ToListAsync();
+
+                return similarSongs; //vrni 10 pesmi iz najbolj popularnega žanra eventa
+            }
+            else
+            {
+                var similarSongs = await _songsCollection
+                   .Find(_ => true)
+                   .Limit(10)
+                   .ToListAsync();
+                return similarSongs; //če ni žanrov, vrni 10 random pesmi
+            }
+
         }
     }
 }
