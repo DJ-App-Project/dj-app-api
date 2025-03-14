@@ -60,6 +60,7 @@ builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
 builder.Services.AddSingleton<SongRepository>();
+builder.Services.AddSingleton<PlaylistRepository>();
 builder.Services.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
 builder.Services.AddSingleton<TokenService>();
 

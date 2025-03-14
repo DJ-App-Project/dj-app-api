@@ -18,6 +18,16 @@ namespace dj_api.Models
 
         [BsonElement("QRCode")] 
         public string QRCodeText { get; set; } = null!;
+        [BsonElement("Name")]
+        public string Name { get; set; } = null!;
+        [BsonElement("Description")]
+        public string Description { get; set; } = null!;
+        [BsonElement("Date")]
+        public DateTime Date { get; set; } = new DateTime()!;
+        [BsonElement("Location")]
+        public string Location { get; set; } = null!;
+        [BsonElement("Active")]
+        public bool Active { get; set; } = false!;
 
         [BsonElement("MusicConfig")]
         public MusicConfigClass MusicConfig { get; set; } = null!;
