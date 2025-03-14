@@ -19,10 +19,9 @@ namespace dj_api.Repositories
         private readonly IMemoryCache _memoryCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new()
         {
-            SlidingExpiration = TimeSpan.FromMinutes(30) // Cache expiration policy
+            SlidingExpiration = TimeSpan.FromMinutes(30)
         };
 
-      
         private static HashSet<string> _paginatedCacheKeys = new HashSet<string>();
 
         public EventRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
@@ -31,7 +30,6 @@ namespace dj_api.Repositories
             _memoryCache = memoryCache;
         }
 
-      
         public async Task<List<Event>> GetAllEventsAsync()
         {
             const string cacheKey = "all_events";
@@ -45,7 +43,6 @@ namespace dj_api.Repositories
             return cachedEvents ?? new List<Event>();
         }
 
-     
         public async Task<Event> GetEventByIdAsync(string id)
         {
             string cacheKey = $"event_{id}";
@@ -62,7 +59,6 @@ namespace dj_api.Repositories
             return cachedEvent ?? throw new Exception($"Event with ID {id} not found");
         }
 
-      
         public async Task CreateEventAsync(Event eventy)
         {
             var existing = await _eventsCollection.Find(e => e.ObjectId == eventy.ObjectId).FirstOrDefaultAsync();
@@ -71,32 +67,32 @@ namespace dj_api.Repositories
 
             await _eventsCollection.InsertOneAsync(eventy);
 
-          
             _memoryCache.Remove("all_events");
             RemovePaginatedEventsCache();
         }
 
         public async Task DeleteEventAsync(string id)
         {
-           
-
             await _eventsCollection.DeleteOneAsync(e => e.ObjectId == id);
 
-            
             _memoryCache.Remove($"event_{id}");
             _memoryCache.Remove("all_events");
             RemovePaginatedEventsCache();
         }
 
-        public async Task UpdateEventAsync(string id, Event eventy)
+        public async Task<bool> UpdateEventAsync(string id, Event updatedEvent)
         {
-            
+            var updateResult = await _eventsCollection.ReplaceOneAsync(e => e.ObjectId == id, updatedEvent);
+            bool success = updateResult.ModifiedCount > 0;
 
-            await _eventsCollection.ReplaceOneAsync(e => e.ObjectId == id, eventy);
+            if (success)
+            {
+                _memoryCache.Set($"event_{id}", updatedEvent, _cacheEntryOptions);
+                _memoryCache.Remove("all_events");
+                RemovePaginatedEventsCache();
+            }
 
-            _memoryCache.Remove($"event_{id}");
-            _memoryCache.Remove("all_events");
-            RemovePaginatedEventsCache();
+            return success;
         }
 
         private void RemovePaginatedEventsCache()
@@ -108,7 +104,6 @@ namespace dj_api.Repositories
             _paginatedCacheKeys.Clear();
         }
 
-     
         public async Task<byte[]> GenerateQRCode(string EventId)
         {
             byte[] qrCodeImg;
@@ -126,7 +121,6 @@ namespace dj_api.Repositories
             return qrCodeImg;
         }
 
-
         public async Task<List<EventGet>> GetPaginatedEventsAsync(int page, int pageSize)
         {
             string cacheKey = $"paginated_events_page_{page}_size_{pageSize}";
@@ -136,27 +130,24 @@ namespace dj_api.Repositories
             if (!_memoryCache.TryGetValue(cacheKey, out List<EventGet>? cachedEvents))
             {
                 var projection = Builders<Event>.Projection
-             .Include(e => e.ObjectId)
-             .Include(e => e.QRCodeText)
-             .Include(e => e.DJId)
-                .Include(e => e.Name)
-                .Include(e => e.Description)
-                .Include(e => e.Date)
-                .Include(e => e.Location)
-                .Include(e => e.Active);
-
-
+                    .Include(e => e.ObjectId)
+                    .Include(e => e.QRCodeText)
+                    .Include(e => e.DJId)
+                    .Include(e => e.Name)
+                    .Include(e => e.Description)
+                    .Include(e => e.Date)
+                    .Include(e => e.Location)
+                    .Include(e => e.Active);
 
                 cachedEvents = await _eventsCollection
                     .Find(_ => true)
-                    .Project<EventGet>(projection) 
+                    .Project<EventGet>(projection)
                     .Skip((page - 1) * pageSize)
                     .Limit(pageSize)
                     .ToListAsync();
 
                 cachedEvents ??= new List<EventGet>();
 
-               
                 if (cachedEvents.Count > 0)
                 {
                     _memoryCache.Set(cacheKey, cachedEvents, _cacheEntryOptions);
@@ -176,9 +167,11 @@ namespace dj_api.Repositories
                 throw new Exception("Event not found.");
             }
 
-            if (eventy.MusicConfig.MusicPlaylist.Any(m => m.MusicName == song.Title && m.MusicArtist == song.Artist))
+            if (eventy.MusicConfig.MusicPlaylist.Any(m =>
+                string.Equals(m.MusicName, song.Title, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(m.MusicArtist, song.Artist, StringComparison.OrdinalIgnoreCase)))
             {
-                return false; // Song is already in the event playlist
+                return false;
             }
 
             eventy.MusicConfig.MusicPlaylist.Add(new MusicData
@@ -195,10 +188,9 @@ namespace dj_api.Repositories
             var update = Builders<Event>.Update.Set(e => e.MusicConfig, eventy.MusicConfig);
             await _eventsCollection.UpdateOneAsync(eventFilter, update);
 
+            _memoryCache.Set($"event_{eventId}", eventy, _cacheEntryOptions);
+
             return true;
         }
-        
-
-
     }
 }
