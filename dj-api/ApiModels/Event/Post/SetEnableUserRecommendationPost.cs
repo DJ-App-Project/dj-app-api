@@ -2,7 +2,7 @@
 {
     public class SetEnableUserRecommendationPost
     {
-        public string ObjectId { get; set; } = null!;
+        public string EventId { get; set; } = null!;
 
         public bool EnableUserRecommendation { get; set; } = false;
 

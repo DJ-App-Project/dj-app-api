@@ -10,6 +10,6 @@ namespace dj_api.ApiModels.Event.Post
         public string MusicGenre { get; set; } = null!;
         public bool Visible { get; set; }
         public bool IsUserRecommendation { get; set; }
-        public string RecommenderID { get; set; } = null!;
+        
     }
 }

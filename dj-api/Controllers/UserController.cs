@@ -4,6 +4,7 @@ using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/users")]
@@ -144,6 +145,37 @@ public class UserController : ControllerBase
         
 
         await _userRepository.UpdateUserAsync(id, a);
+        return Ok(); // če je uporabnik uspešno posodobljen, vrni NoContent
+    }
+    [SwaggerOperation(Summary = "Uporabi ko user sam sebe popravlja")]
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> UpdateUser( UserModel UpdatedUser) // PUT api za posodabljanje uporabnika po ID
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+        var existingUser = await _userRepository.GetUserByIdAsync(userId);
+        if (existingUser == null)
+            return NotFound("User doesn't exist"); // če uporabnik ni najden, vrni NotFound
+
+        User a = new User
+        {
+            ObjectId = userId,
+            Name = UpdatedUser.name,
+            FamilyName = UpdatedUser.familyName,
+            ImageUrl = UpdatedUser.imageUrl,
+            Username = UpdatedUser.username,
+            Email = UpdatedUser.email,
+            Password = UpdatedUser.password,
+            CreatedAt = existingUser.CreatedAt,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+
+        await _userRepository.UpdateUserAsync(userId, a);
         return Ok(); // če je uporabnik uspešno posodobljen, vrni NoContent
     }
 }

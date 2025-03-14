@@ -39,9 +39,9 @@ public class EventController : ControllerBase
     [SwaggerOperation(Summary = "Get event based on EventId")]
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<IActionResult> GetEventById(string id)
+    public async Task<IActionResult> GetEventById(string EventId)
     {
-        var eventy = await _eventsRepository.GetEventByIdAsync(id);
+        var eventy = await _eventsRepository.GetEventByIdAsync(EventId);
         if (eventy == null)
             return NotFound();
 
@@ -145,16 +145,16 @@ public class EventController : ControllerBase
         {
             return BadRequest("Data missing");
         }
-        var user = _userRepository.GetUserByIdAsync(data.DjId);
-        if (user == null)
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
         {
-            return BadRequest("DjId is not a user");
+            return Unauthorized(new { message = "User authentication required." });
         }
         try
         {
             Event newEvent = new Event
             {
-                DJId = data.DjId,
+                DJId = userId,
                 QRCodeText = data.QRCodeText,
                 MusicConfig = new Event.MusicConfigClass()
             };
@@ -162,7 +162,7 @@ public class EventController : ControllerBase
             return Ok(new
             {
                 Message = "Event created successfully.",
-                ObjectId = newEvent.ObjectId
+                EventId = newEvent.ObjectId
             });
         }
         catch (Exception ex)
@@ -176,11 +176,12 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SetEnableUserRecommendation(SetEnableUserRecommendationPost data)
     {
+        
         if (data == null)
         {
             return BadRequest("Request error");
         }
-        var Event = await _eventsRepository.GetEventByIdAsync(data.ObjectId);
+        var Event = await _eventsRepository.GetEventByIdAsync(data.EventId);
         if (Event == null)
         {
             return BadRequest("Event doesn't exist");
@@ -206,6 +207,11 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> AddMusicToEvent(AddMusicToEventModelPost data)
     {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
         if (data == null)
         {
             return BadRequest("data invalid");
@@ -215,11 +221,7 @@ public class EventController : ControllerBase
         {
             return BadRequest("Event doesn't exist");
         }
-        var User = await _userRepository.GetUserByIdAsync(data.RecommenderID);
-        if (User == null)
-        {
-            return BadRequest("User doesn't exist");
-        }
+        
         try
         {
             MusicData newMusic = new MusicData()
@@ -231,14 +233,14 @@ public class EventController : ControllerBase
                 Votes = 0,
                 VotersIDs = [],
                 IsUserRecommendation = data.IsUserRecommendation,
-                RecommenderID = data.RecommenderID,
+                RecommenderID = userId,
 
             };
             Event.MusicConfig.MusicPlaylist.Add(newMusic);
             await _eventsRepository.UpdateEventAsync(Event.ObjectId, Event);
 
-            // Extract relevant details and sort by votes (descending)
-            var musicDetails = Event.MusicConfig?.MusicPlaylist?
+           // Extract relevant details and sort by votes (descending)
+          /*   var musicDetails = Event.MusicConfig?.MusicPlaylist?
                 .OrderByDescending(m => m.Votes) //po votih padajoce
                 .Select(m => new
                 {
@@ -247,9 +249,9 @@ public class EventController : ControllerBase
                     Votes = m.Votes,
                     IsUserRecommendation = m.IsUserRecommendation,
                     RecommenderID = m.RecommenderID
-                }).ToList();
+                }).ToList();*/
 
-            return Ok(musicDetails);
+            return Ok(newMusic);
         }
         catch (Exception ex) {
             return BadRequest("Error");

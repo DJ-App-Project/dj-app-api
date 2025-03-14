@@ -33,7 +33,7 @@ namespace dj_api.Authentication
          
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.ObjectId),
                 new Claim(ClaimTypes.Name, user.Name),
             
             };
