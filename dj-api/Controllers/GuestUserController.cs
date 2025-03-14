@@ -4,6 +4,7 @@ using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/GuestUsers")]
@@ -108,11 +109,40 @@ public class GuestUserController : ControllerBase
         }
     }
 
+    [HttpPut]
+    [Authorize]
+    [SwaggerOperation(Summary = "Uporabi ko user sam sebe popravlja")]
+    public async Task<IActionResult> UpdateUser(GuestUserModel UpdatedGuestUser)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+        var existingUser = await _guestUserRepository.GetUserByIdAsync(userId);
+        if (existingUser == null)
+            return NotFound("GuestUser doesn't exist"); // če gost ni najden, vrni NotFound
+
+        GuestUser CreateGuestUser = new GuestUser
+        {
+            ObjectId = userId,
+            Name = UpdatedGuestUser.Name,
+            Username = UpdatedGuestUser.Username,
+            Email = UpdatedGuestUser.Email,
+            CreatedAt = existingUser.CreatedAt,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+
+
+        await _guestUserRepository.UpdateUserAsync(userId, CreateGuestUser);
+        return Ok(); // če je gost uspešno posodobljen, vrni NoContent
+    }
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateUser(string id, GuestUserModel UpdatedGuestUser)
+    public async Task<IActionResult> UpdateUser(string id,GuestUserModel UpdatedGuestUser)
     {
-      
+        
         var existingUser = await _guestUserRepository.GetUserByIdAsync(id);
         if (existingUser == null)
             return NotFound("GuestUser doesn't exist"); // če gost ni najden, vrni NotFound

@@ -25,7 +25,7 @@ namespace dj_api.Controllers
         {
             var user = new User
             {
-                Id = 12345,  
+                ObjectId = "12345",  
                 Name = "Test User",  
                 Email = "testuser@example.com"  
             };
