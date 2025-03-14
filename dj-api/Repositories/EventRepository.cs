@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using dj_api.ApiModels.Event.Get;
+using dj_api.ApiModels.Event.Post;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace dj_api.Repositories
 {
@@ -194,6 +197,7 @@ namespace dj_api.Repositories
 
             return true;
         }
+        
 
 
     }

@@ -6,6 +6,7 @@ using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
@@ -208,7 +209,7 @@ public class EventController : ControllerBase
 
     }
 
-    [SwaggerOperation(Summary = "Add a specific music to event")]
+    [SwaggerOperation(Summary = "Add a specific music to event if it doesnt exist its added to song")]
     [HttpPost("/AddMusicToEvent")]
     [Authorize]
     public async Task<IActionResult> AddMusicToEvent(AddMusicToEventModelPost data)
@@ -228,7 +229,11 @@ public class EventController : ControllerBase
         {
             return BadRequest("Event doesn't exist");
         }
-        if(userId == Event.DJId)
+        if (Event.MusicConfig.EnableUserRecommendation == false || Event.DJId != userId)
+        {
+            return BadRequest("Only Dj can add songs");
+        }
+        if (userId == Event.DJId)
         {
             whoaddedSong = false;
         }
@@ -314,6 +319,64 @@ public class EventController : ControllerBase
         return Ok(new { message = "Song added to the event and first vote recorded!" });
     }
 
+    [SwaggerOperation(Summary = "Vote on a song in Event - 1 user can only vote for 1 song")]
+    [HttpPost("VoteForEventSong/{eventId}")]
+    public async Task<IActionResult> VoteForEventSong(VoteForEventSongPost data, string eventId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+
+        var eventy = await _eventsRepository.GetEventByIdAsync(eventId);
+        if (eventy == null)
+        {
+            return BadRequest(new { message = "Event doesn't exist" });
+        }
+        if(eventy.Active == false)
+        {
+            return BadRequest("Event didn't start yes");
+        }
+        
+
+        try
+        {
+            var existingSong = eventy.MusicConfig?.MusicPlaylist?
+                .FirstOrDefault(m => string.Equals(m.MusicName, data.MusicName, StringComparison.OrdinalIgnoreCase) &&
+                                     string.Equals(m.MusicArtist, data.MusicArtist, StringComparison.OrdinalIgnoreCase));
+
+            if (existingSong == null)
+            {
+                return BadRequest(new { message = "Song doesn't exist in event" });
+            }
+
+            
+            bool hasUserVoted = eventy.MusicConfig.MusicPlaylist
+                .Any(m => m.VotersIDs.Contains(userId));
+
+            if (hasUserVoted)
+            {
+                return BadRequest(new { message = "User has already voted for a song in this event" });
+            }
+
+            
+            existingSong.VotersIDs.Add(userId);
+            existingSong.Votes += 1;
+
+           
+            await _eventsRepository.UpdateEventAsync(eventId, eventy);
+
+            return Ok(new { message = "Vote successfully recorded!" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = "Error when adding vote to song", error = ex.Message });
+        }
+    }
+
+
+
     [HttpPut("ChangeQRCodeText/{EventId}")]
     [Authorize]
     public async Task<IActionResult> ChangeQRCodeText(ChangeQRCodeTextPut data,string EventId) 
@@ -337,5 +400,7 @@ public class EventController : ControllerBase
             return BadRequest("Error when updating ChangeQRCodeText");
         }
     }
+
+
 
 }
