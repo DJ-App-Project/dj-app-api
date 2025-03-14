@@ -2,24 +2,38 @@ using dj_api.Authentication;
 using dj_api.Data;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Caching.Memory;
+
 var builder = WebApplication.CreateBuilder(args);
 
-#region auth
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiKeyPolicy", policy =>
 
+
+#region auth 
+var jwtSettings = builder.Configuration.GetSection("JWTSecrets");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        policy.Requirements.Add(new ApiKeyRequirement());
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["issuer"], 
+            ValidAudience = jwtSettings["audience"], 
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["secretKey"]!)) 
+        };
     });
-});
-builder.Services.AddScoped<IAuthorizationHandler, ApiKeyHandler>();
-builder.Services.AddScoped<IApiKeyValidation, ApiKeyValidation>();//call apikeyValidation
-builder.Services.AddHttpContextAccessor();//need for policy based auth
+
+builder.Services.AddHttpContextAccessor(); 
+
 #endregion
 
 #region rateLimit
@@ -31,34 +45,37 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
 {
     rateLimiterOptions.AddSlidingWindowLimiter("sliding", options =>
     {
-        options.PermitLimit = 100; // number of req in specific time
-        options.Window = TimeSpan.FromSeconds(20);// specific time
+        options.PermitLimit = 100; // Number of requests in a specific time
+        options.Window = TimeSpan.FromSeconds(20); // Specific time window
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         options.QueueLimit = 0;
     });
 });
 #endregion
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton<EventRepository>();
-builder.Services.AddSingleton<MusicDataRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
 builder.Services.AddSingleton<SongRepository>();
-
+builder.Services.AddSingleton<PlaylistRepository>();
+builder.Services.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
+builder.Services.AddSingleton<TokenService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger configuration for JWT
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen( c =>
+builder.Services.AddSwaggerGen(c =>
 {
-    c.AddSecurityDefinition("X-API-Key", new OpenApiSecurityScheme
+    // JWT Authorization in Swagger UI
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.ApiKey,
-        Name = "X-API-Key",
-        In = ParameterLocation.Header,
-        Description = "Enter your API key in the header using the 'ApiKey' format"
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Enter your JWT token in the format: Bearer {your-token-here}"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -68,17 +85,18 @@ builder.Services.AddSwaggerGen( c =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "X-API-Key"
+                    Id = "Bearer"
                 }
             },
             Array.Empty<string>()
         }
     });
+    c.EnableAnnotations();
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -86,8 +104,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseAuthentication();  
+app.UseAuthorization();  
 
 app.MapControllers();
 

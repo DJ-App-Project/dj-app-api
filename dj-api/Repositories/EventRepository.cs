@@ -1,10 +1,7 @@
-﻿using dj_api.Data;
+using dj_api.Data;
 using dj_api.Models;
-using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using QRCoder;
-<<<<<<< Updated upstream
-=======
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -14,87 +11,118 @@ using dj_api.ApiModels.Event.Post;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Reflection.Metadata.Ecma335;
->>>>>>> Stashed changes
 
 namespace dj_api.Repositories
 {
     public class EventRepository
     {
         private readonly IMongoCollection<Event> _eventsCollection;
-<<<<<<< Updated upstream
-=======
         private readonly IMongoCollection<Song> _songsCollection;
         private readonly IMemoryCache _memoryCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new()
         {
             SlidingExpiration = TimeSpan.FromMinutes(30)
         };
->>>>>>> Stashed changes
 
-        public EventRepository(MongoDbContext dbContext)
+        private static HashSet<string> _paginatedCacheKeys = new HashSet<string>();
+
+        public EventRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
         {
             _eventsCollection = dbContext.GetCollection<Event>("DJEvent");
-<<<<<<< Updated upstream
-=======
             _songsCollection = dbContext.GetCollection<Song>("Songs");
             _memoryCache = memoryCache;
->>>>>>> Stashed changes
+
         }
 
         public async Task<List<Event>> GetAllEventsAsync()
         {
-            return await _eventsCollection.Find(_ => true).ToListAsync();
+            const string cacheKey = "all_events";
+
+            if (!_memoryCache.TryGetValue(cacheKey, out List<Event>? cachedEvents))
+            {
+                cachedEvents = await _eventsCollection.Find(_ => true).ToListAsync();
+                _memoryCache.Set(cacheKey, cachedEvents, _cacheEntryOptions);
+            }
+
+            return cachedEvents ?? new List<Event>();
         }
 
         public async Task<Event> GetEventByIdAsync(string id)
         {
-            return await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
+            string cacheKey = $"event_{id}";
+
+            if (!_memoryCache.TryGetValue(cacheKey, out Event? cachedEvent))
+            {
+                cachedEvent = await _eventsCollection.Find(e => e.ObjectId == id).FirstOrDefaultAsync();
+                if (cachedEvent != null)
+                {
+                    _memoryCache.Set(cacheKey, cachedEvent, _cacheEntryOptions);
+                }
+            }
+
+            return cachedEvent ?? throw new Exception($"Event with ID {id} not found");
         }
 
         public async Task CreateEventAsync(Event eventy)
         {
-            var existing = await _eventsCollection.Find(e => e.Id == eventy.Id).FirstOrDefaultAsync();
+            var existing = await _eventsCollection.Find(e => e.ObjectId == eventy.ObjectId).FirstOrDefaultAsync();
             if (existing != null)
-                throw new Exception($"Event s {eventy.Id} že obstaja"); // če event že obstaja, vrni Exception
+                throw new Exception($"Event with ID {eventy.ObjectId} already exists");
 
-            await _eventsCollection.InsertOneAsync(eventy); // ustvari nov event
+            await _eventsCollection.InsertOneAsync(eventy);
+
+            _memoryCache.Remove("all_events");
+            RemovePaginatedEventsCache();
         }
 
-        public async Task DeleteEventAsync(string id) // brisanje eventa po ID
+        public async Task DeleteEventAsync(string id)
         {
-            var existing = await _eventsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
-            if (existing == null)
-                throw new Exception($"Event s {id} ne obstaja"); // če event ne obstaja, vrni Exception
+            await _eventsCollection.DeleteOneAsync(e => e.ObjectId == id);
 
-            await _eventsCollection.DeleteOneAsync(e => e.Id == id);
+            _memoryCache.Remove($"event_{id}");
+            _memoryCache.Remove("all_events");
+            RemovePaginatedEventsCache();
         }
 
-        public async Task UpdateEventAsync(string id, Event eventy)
+        public async Task<bool> UpdateEventAsync(string id, Event updatedEvent)
         {
-            await _eventsCollection.ReplaceOneAsync(e => e.Id == id, eventy); // posodobi event
+            var updateResult = await _eventsCollection.ReplaceOneAsync(e => e.ObjectId == id, updatedEvent);
+            bool success = updateResult.ModifiedCount > 0;
+
+            if (success)
+            {
+                _memoryCache.Set($"event_{id}", updatedEvent, _cacheEntryOptions);
+                _memoryCache.Remove("all_events");
+                RemovePaginatedEventsCache();
+            }
+
+            return success;
         }
 
-        //QR Code generacija iz teksta v bazi
-        public async Task<Byte[]> GenerateQRCode(string EventId)
+        private void RemovePaginatedEventsCache()
         {
-            Byte[] qrCodeImg = null;
-            Event eventy;
+            foreach (var cacheKey in _paginatedCacheKeys)
+            {
+                _memoryCache.Remove(cacheKey);
+            }
+            _paginatedCacheKeys.Clear();
+        }
 
-            eventy = await _eventsCollection.Find(e => e.Id == EventId).FirstOrDefaultAsync(); // poišči event po ID
+        public async Task<byte[]> GenerateQRCode(string EventId)
+        {
+            byte[] qrCodeImg;
+            Event eventy = await _eventsCollection.Find(e => e.ObjectId == EventId).FirstOrDefaultAsync();
             if (eventy == null)
-                throw new Exception($"Event s {EventId} ne obstaja"); // če event ne obstaja, vrni Exception
+                throw new Exception($"Event with ID {EventId} does not exist");
 
             using (var qrGenerator = new QRCodeGenerator())
             using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(eventy.QRCodeText, QRCodeGenerator.ECCLevel.Q))
             using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
             {
-                qrCodeImg = qrCode.GetGraphic(20); // generiraj QR kodo iz teksta
+                qrCodeImg = qrCode.GetGraphic(20);
             }
 
-<<<<<<< Updated upstream
             return qrCodeImg; // vrni QR kodo
-=======
-            return qrCodeImg;
         }
 
         public async Task<List<EventGet>> GetPaginatedEventsAsync(int page, int pageSize)
@@ -154,6 +182,7 @@ namespace dj_api.Repositories
             {
                 ObjectId = song.ObjectId,
                 MusicName = song.Name,
+
                 Visible = true,
                 Votes = 1,
                 VotersIDs = new List<string> { userId },
@@ -167,7 +196,6 @@ namespace dj_api.Repositories
             _memoryCache.Set($"event_{eventId}", eventy, _cacheEntryOptions);
 
             return true;
->>>>>>> Stashed changes
         }
 
         public async Task<List<Song>> GetSilimarSongsToEvent(string eventId)

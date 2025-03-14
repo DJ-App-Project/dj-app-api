@@ -1,26 +1,47 @@
-﻿using dj_api.Data;
+using dj_api.Data;
 using dj_api.Models;
 using MongoDB.Driver;
+using Microsoft.Extensions.Caching.Memory;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace dj_api.Repositories
 {
     public class SongRepository
     {
         private readonly IMongoCollection<Song> _songsCollection;
-
-        public SongRepository(MongoDbContext dbContext)
+        private readonly IMemoryCache _memoryCache;
+        private readonly MemoryCacheEntryOptions _cacheEntryOptions = new()
         {
-            _songsCollection = dbContext.GetCollection<Song>("songs");
+            SlidingExpiration = TimeSpan.FromMinutes(30)
+        };
+
+        private static HashSet<string> _paginatedCacheKeys = new HashSet<string>();
+
+        public SongRepository(MongoDbContext dbContext, IMemoryCache memoryCache)
+        {
+            _songsCollection = dbContext.GetCollection<Song>("Songs");
+            _memoryCache = memoryCache;
         }
 
-
-        public async Task<Song> GetSongByIdAsync(string id)
+        public async Task<Song> GetSongByIdAsync(string objectId)
         {
-            return await _songsCollection.Find(song => song.Id == id).FirstOrDefaultAsync();
-        }
+            string cacheKey = $"song_{objectId}";
 
-<<<<<<< Updated upstream
-=======
+            if (!_memoryCache.TryGetValue(cacheKey, out Song? cachedSong))
+            {
+                cachedSong = await _songsCollection.Find(song => song.ObjectId == objectId).FirstOrDefaultAsync();
+                if (cachedSong != null)
+                {
+                    _memoryCache.Set(cacheKey, cachedSong, _cacheEntryOptions);
+                }
+            }
+
+            return cachedSong ?? throw new Exception($"Song with ID {objectId} not found.");
+        }
+      
         public async Task<List<Song>> GetAllSongsAsync()
         {
             const string cacheKey = "all_songs";
@@ -102,7 +123,6 @@ namespace dj_api.Repositories
             return await _songsCollection.Find(song => song.Name.ToLower() == title.ToLower()).FirstOrDefaultAsync();
         }
 
-        
->>>>>>> Stashed changes
+       
     }
 }

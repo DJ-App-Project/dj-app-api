@@ -1,103 +1,87 @@
-﻿using dj_api.Models;
+﻿using dj_api.ApiModels.Event.Get;
+using dj_api.ApiModels.Event.Post;
+using dj_api.ApiModels.Event.Put;
+using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 [ApiController]
 [Route("api/event")]
 
-// API za delo z dogodki/eventi + QR kodo
 public class EventController : ControllerBase
 {
     private readonly EventRepository _eventsRepository;
+    private readonly UserRepository _userRepository;
+    private readonly SongRepository _songRepository;
 
-    public EventController(EventRepository eventRepository) // konstruktor za EventController
+    public EventController(EventRepository eventRepository, UserRepository userRepository, SongRepository songRepository) // konstruktor za EventController
     {
         _eventsRepository = eventRepository;
+        _userRepository = userRepository;
+        _songRepository = songRepository;
     }
 
-
-    [HttpGet]// GET api za vse dogodke
-    [Authorize(Policy = "ApiKeyPolicy")]
+    [SwaggerOperation(Summary = "DEPRECATED: Get all events (use paginated version)")]
+    [HttpGet("/events-old")]
+    [Authorize]
     public async Task<IActionResult> GetAllEvents()
     {
-        var events = await _eventsRepository.GetAllEventsAsync(); // pridobi vse dogodke
-        if (events.Count > 0 && events != null) // če so dogodki najdeni
+        var events = await _eventsRepository.GetAllEventsAsync();
+        if (events.Count > 0 && events != null)
         {
-            return Ok(events); // vrni dogodke
+            return Ok(events);
         }
-        return NotFound(); // če ni dogodkov, vrni NotFound
+        return NotFound();
+    }
+    [SwaggerOperation(Summary = "Get event based on EventId")]
+    [HttpGet("{EventId}")]
+    [Authorize]
+    public async Task<IActionResult> GetEventById(string EventId)
+    {
+        var eventy = await _eventsRepository.GetEventByIdAsync(EventId);
+        if (eventy == null)
+            return NotFound();
+
+        return Ok(eventy);
     }
 
-
-    [HttpGet("{id}")]// GET api za en dogodek po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> GetEventById(string id)
+    [SwaggerOperation(Summary = "Delete Event by Id")]
+    [HttpDelete("{EventId}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteEvent(string EventId)
     {
-        var eventy = await _eventsRepository.GetEventByIdAsync(id); // pridobi dogodek po ID
-        if (eventy == null)
-            return NotFound(); // če dogodek ni najden, vrni NotFound
-
-        return Ok(eventy); // če je dogodek najden, vrni dogodek
-    }
-
-
-    [HttpPost]// POST api za kreiranje novega dogodka
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> CreateEvent(Event eventy)
-    {
-        if (eventy == null)
+        if (EventId == null)
         {
-            return BadRequest("Event data missing"); // če ni podatkov o dogodku, vrni BadRequest
+            return BadRequest("Invalid data");
         }
-
+        var Event = _eventsRepository.GetEventByIdAsync(EventId);
+        if (Event == null)
+        {
+            return BadRequest("Event doesn't exist");
+        }
         try
         {
-            await _eventsRepository.CreateEventAsync(eventy); // ustvari nov dogodek
-            return CreatedAtAction("GetEventById", new { id = eventy.Id }, eventy); // vrni ustvarjeni dogodek
+            await _eventsRepository.DeleteEventAsync(EventId);
+            return Ok();
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message); // če je prišlo do napake, vrni BadRequest z sporočilom napake
+            return BadRequest(ex.Message);
         }
     }
 
-    [HttpDelete("{id}")]// DELETE api za brisanje dogodka po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> DeleteEvent(string id)
+    [SwaggerOperation(Summary = "Create QR code based on eventid")]
+    [HttpGet("{EventId}/qrcode")]
+    [Authorize]
+    public async Task<IActionResult> GetEventQrCode(string EventId)
     {
-        try
-        {
-            await _eventsRepository.DeleteEventAsync(id);
-            return NoContent(); // če je dogodek uspešno izbrisan, vrni NoContent
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message); // če je prišlo do napake, vrni BadRequest z sporočilom napake
-        }
-    }
-
-
-    [HttpPut("{id}")]// PUT api za posodabljanje dogodka po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> UpdateEvent(string id, Event newEvent)
-    {
-        if (id != newEvent.Id)
-            return BadRequest(); // če ID dogodka ni enak ID-ju novega dogodka, vrni BadRequest
-        var existingEvent = await _eventsRepository.GetEventByIdAsync(id);
-        if (existingEvent == null)
-            return NotFound(); // če dogodek ne obstaja, vrni NotFound
-
-        await _eventsRepository.UpdateEventAsync(id, newEvent);
-        return NoContent(); // če je dogodek uspešno posodobljen, vrni NoContent
-    }
-
-
-    [HttpGet("{id}/qrcode")]// GET api za png QR kodo dogodka po ID
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> GetEventQrCode(string id)
-    {
-        var QRImg = await _eventsRepository.GenerateQRCode(id);
+        var QRImg = await _eventsRepository.GenerateQRCode(EventId);
 
         if (QRImg != null && QRImg.Length > 0) // če je QR koda generirana
         {
@@ -105,9 +89,7 @@ public class EventController : ControllerBase
         }
         return NotFound(); // če QR koda ni generirana, vrni NotFound
     }
-
-<<<<<<< Updated upstream
-=======
+    
     [SwaggerOperation(Summary = "Get paginated Events (only events)")]
     [HttpGet("/AllEvents")]
     [Authorize]
@@ -526,6 +508,4 @@ public class EventController : ControllerBase
 
         return Ok(similarSongs);
     }
-
->>>>>>> Stashed changes
 }

@@ -1,8 +1,11 @@
-﻿using dj_api.Models;
+﻿using dj_api.ApiModels;
+using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using MongoDB.Bson.Serialization.Attributes;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,20 +20,24 @@ public class SongController : ControllerBase
     {
         _songRepository = songRepository;
     }
-
-
-    [HttpGet("{id}")]
-    [Authorize(Policy = "ApiKeyPolicy")]
-    public async Task<IActionResult> GetSongById(string id)
+    [SwaggerOperation(Summary = "DEPRECATED: Get all songs (use paginated version)")]
+    [HttpGet("/song-old")]
+    [Authorize]
+    public async Task<IActionResult> GetAllSongs()
     {
-        var song = await _songRepository.GetSongByIdAsync(id);
+        var songs = await _songRepository.GetAllSongsAsync();
+        return Ok(songs);
+    }
+    [HttpGet("{ObjectId}")]
+    [Authorize]
+    public async Task<IActionResult> GetSongById(string ObjectId)
+    {
+        var song = await _songRepository.GetSongByIdAsync(ObjectId);
         if (song == null)
             return NotFound();
 
         return Ok(song);
     }
-<<<<<<< Updated upstream
-=======
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> CreateSong(SongModel newSong)
@@ -40,6 +47,7 @@ public class SongController : ControllerBase
             return BadRequest("Song data missing");
         }
         var SongTitleCheck = await _songRepository.FindSongByTitleAsync(newSong.Name);
+
         
         var SongCheckArtist = await _songRepository.FindSongsByArtistAsync(newSong.Artist);
         if (SongTitleCheck != null || SongCheckArtist != null)
@@ -139,6 +147,7 @@ public class SongController : ControllerBase
         }
 
         var existingSong = await _songRepository.FindSongByTitleAsync(newSong.Name);
+
         if (existingSong != null)
         {
             return Conflict("Song already exists in the Songs collection.");
@@ -147,6 +156,7 @@ public class SongController : ControllerBase
         var song = new Song
         {
             Name = newSong.Name,
+
             Artist = newSong.Artist,
             Genre = newSong.Genre,
             AddedAt = DateTime.UtcNow
@@ -159,6 +169,4 @@ public class SongController : ControllerBase
             message = "Song added successfully to Songs collection. Ask the event organizer to approve it."
         });
     }
->>>>>>> Stashed changes
-
 }
