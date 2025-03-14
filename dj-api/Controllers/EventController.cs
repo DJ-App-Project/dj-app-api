@@ -1,5 +1,6 @@
 ﻿using dj_api.ApiModels.Event.Get;
 using dj_api.ApiModels.Event.Post;
+using dj_api.ApiModels.Event.Put;
 using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -160,7 +161,7 @@ public class EventController : ControllerBase
                 Date = data.Date,
                 Location = data.Location,
                 Active = data.Active,
-                QRCodeText = data.QRCodeText,
+               
                 MusicConfig = new Event.MusicConfigClass()
             };
             await _eventsRepository.CreateEventAsync(newEvent);
@@ -290,6 +291,28 @@ public class EventController : ControllerBase
         return Ok(new { message = "Song added to the event and first vote recorded!" });
     }
 
+    [HttpPut("ChangeQRCodeText/{EventId}")]
+    [Authorize]
+    public async Task<IActionResult> ChangeQRCodeText(ChangeQRCodeTextPut data,string EventId) 
+    {
+        if(data == null)
+        {
+            return BadRequest("error in data");
+        }
+        var Event = await _eventsRepository.GetEventByIdAsync(EventId);
+        if (Event == null) {
+            return BadRequest("Event doesnt exist");
+        }
 
+        try
+        {
+            Event.QRCodeText = data.ChangeQRCodeText;
+            await _eventsRepository.UpdateEventAsync(EventId, Event);
+            return Ok();
+        }
+        catch (Exception ex) {
+            return BadRequest("Error when updating ChangeQRCodeText");
+        }
+    }
 
 }
