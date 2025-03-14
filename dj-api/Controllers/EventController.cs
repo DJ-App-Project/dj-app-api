@@ -256,4 +256,33 @@ public class EventController : ControllerBase
                 }
 
     }
+
+
+    [HttpPost("{eventId}/vote-unlisted/{songId}")]
+    [Authorize]
+    public async Task<IActionResult> VoteForUnlistedSong(string eventId, string songId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+
+        var song = await _songRepository.GetSongByIdAsync(songId);
+        if (song == null)
+        {
+            return NotFound(new { message = "Song not found in Songs collection." });
+        }
+
+        var success = await _eventsRepository.AddSongToEventAsync(eventId, song, userId);
+        if (!success)
+        {
+            return BadRequest(new { message = "Song is already in the event playlist." });
+        }
+
+        return Ok(new { message = "Song added to the event and first vote recorded!" });
+    }
+
+
+
 }
