@@ -455,9 +455,9 @@ public class EventController : ControllerBase
 
 
 
-    [HttpPut("RemoveMusicFromEvent/{EventId}")]
+    [HttpPost("RemoveMusicFromEvent/{EventId}")]
     [Authorize]
-    public async Task<IActionResult> RemoveMusicFromEvent(string EventId, [FromBody] MusicData musicData)
+    public async Task<IActionResult> RemoveMusicFromEvent(string EventId, RemoveMusicFromEventPut data)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
@@ -473,7 +473,7 @@ public class EventController : ControllerBase
 
       
         var musicToRemove = Event.MusicConfig?.MusicPlaylist?
-            .FirstOrDefault(m => m.MusicName == musicData.MusicName && m.MusicArtist == musicData.MusicArtist);
+            .FirstOrDefault(m => m.MusicName == data.MusicName && m.MusicArtist == data.MusicArtist);
 
         if (musicToRemove == null)
         {
