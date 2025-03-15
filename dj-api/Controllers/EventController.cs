@@ -1,4 +1,5 @@
 ﻿using dj_api.ApiModels.Event.Get;
+
 using dj_api.ApiModels.Event.Post;
 using dj_api.ApiModels.Event.Put;
 using dj_api.Models;
@@ -50,6 +51,44 @@ public class EventController : ControllerBase
 
         return Ok(eventy);
     }
+
+
+    [HttpGet("EventsFromUser/{UserId}")]
+    [Authorize]
+    public async Task<IActionResult> EventFromUser(string UserId)
+    {
+        if(UserId == null)
+        {
+            return BadRequest("Error in UserId");
+        }
+        try
+        {
+
+
+            List<Event> Events = await _eventsRepository.FindEvents(UserId);
+            List<EventGet> filteredEvents = Events.Select(e => new EventGet
+            {
+                ObjectId = e.ObjectId,
+                DJId = e.DJId,
+                QRCodeText = e.QRCodeText,
+                Name = e.Name,
+                Description = e.Description,
+                Date = e.Date,
+                Location = e.Location,
+                Active = e.Active,
+                EnableUserRecommendation = e.MusicConfig.EnableUserRecommendation,
+
+            }).ToList();
+            return Ok(filteredEvents);
+        }
+        catch {
+            return BadRequest("Error when creating events");
+        }
+        
+    }
+
+
+
 
     [SwaggerOperation(Summary = "Delete Event by Id")]
     [HttpDelete("{EventId}")]
@@ -532,5 +571,8 @@ public class EventController : ControllerBase
 
         return Ok(leaderboard);
     }
+
+
+    
 
 }

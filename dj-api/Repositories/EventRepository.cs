@@ -259,5 +259,11 @@ namespace dj_api.Repositories
             }
 
         }
+        public async Task<List<Event>> FindEvents(string UserId)
+        {
+            var filter = Builders<Event>.Filter.Eq(e => e.DJId, UserId);
+            return await _eventsCollection.Find(filter).ToListAsync();
+        }
     }
 }
+
