@@ -1,5 +1,5 @@
 ﻿using dj_api.ApiModels.Event.Get;
-using dj_api.ApiModels.Event.Get.ReturnEvent;
+
 using dj_api.ApiModels.Event.Post;
 using dj_api.ApiModels.Event.Put;
 using dj_api.Models;
@@ -66,7 +66,7 @@ public class EventController : ControllerBase
 
 
             List<Event> Events = await _eventsRepository.FindEvents(UserId);
-            List<EventReturnGet> filteredEvents = Events.Select(e => new EventReturnGet
+            List<EventGet> filteredEvents = Events.Select(e => new EventGet
             {
                 ObjectId = e.ObjectId,
                 DJId = e.DJId,
@@ -76,20 +76,8 @@ public class EventController : ControllerBase
                 Date = e.Date,
                 Location = e.Location,
                 Active = e.Active,
-                MusicConfig = new MusicConfigGet
-                {
-                    EnableUserRecommendation = e.MusicConfig.EnableUserRecommendation,
-                    MusicPlaylist = e.MusicConfig.MusicPlaylist
-                        .Select(m => new MusicDataGet
-                        {
-                            MusicName = m.MusicName,
-                            MusicArtist = m.MusicArtist,
-                            MusicGenre = m.MusicGenre,
-                            Visible = m.Visible,
-                            Votes = m.Votes,
-                            IsUserRecommendation = m.IsUserRecommendation,
-                        }).ToList()
-                }
+                EnableUserRecommendation = e.MusicConfig.EnableUserRecommendation,
+
             }).ToList();
             return Ok(filteredEvents);
         }
