@@ -62,6 +62,7 @@ builder.Services.AddSingleton<SongRepository>();
 builder.Services.AddSingleton<PlaylistRepository>();
 builder.Services.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<SongPlayRepository>();
 
 builder.Services.AddControllers();
 
@@ -94,6 +95,15 @@ builder.Services.AddSwaggerGen(c =>
     c.EnableAnnotations();
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClient",
+        policy => policy
+            .WithOrigins("https://localhost:7042")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 
@@ -103,6 +113,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowClient");
 app.UseHttpsRedirection();
 app.UseAuthentication();  
 app.UseAuthorization();  

@@ -14,8 +14,9 @@ using System.Threading.Tasks;
 public class SongController : ControllerBase
 {
     private readonly SongRepository _songRepository;
+    private readonly SongPlayRepository _songPlayRepository;
 
-    
+
     public SongController(SongRepository songRepository)
     {
         _songRepository = songRepository;
@@ -42,13 +43,13 @@ public class SongController : ControllerBase
     [Authorize]
     public async Task<IActionResult> CreateSong(SongModel newSong)
     {
-        if(newSong == null)
+        if (newSong == null)
         {
             return BadRequest("Song data missing");
         }
         var SongTitleCheck = await _songRepository.FindSongByTitleAsync(newSong.Name);
 
-        
+
         var SongCheckArtist = await _songRepository.FindSongsByArtistAsync(newSong.Artist);
         if (SongTitleCheck != null || SongCheckArtist != null)
         {
@@ -72,18 +73,18 @@ public class SongController : ControllerBase
                 ObjectId = CreateSong.ObjectId
             });
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return BadRequest(ex.Message);
         }
     }
     [HttpDelete("{ObjectId}")]
     [Authorize]
-    public async Task<IActionResult> DeleteSong (string ObjectId)
+    public async Task<IActionResult> DeleteSong(string ObjectId)
     {
         var user = await _songRepository.GetSongByIdAsync(ObjectId);
         if (user == null)
-            return NotFound("Song not found"); 
+            return NotFound("Song not found");
 
         try
         {
@@ -98,10 +99,10 @@ public class SongController : ControllerBase
     [HttpPut("{ObjectId}")]
     [Authorize]
 
-    public async Task<IActionResult> UpdateSong(string ObjectId,SongModel UpdatedSong)
+    public async Task<IActionResult> UpdateSong(string ObjectId, SongModel UpdatedSong)
     {
         var existingSong = await _songRepository.GetSongByIdAsync(ObjectId);
-        if(existingSong == null)
+        if (existingSong == null)
         {
             return NotFound("Song doesn't exist");
         }
@@ -168,5 +169,19 @@ public class SongController : ControllerBase
         {
             message = "Song added successfully to Songs collection. Ask the event organizer to approve it."
         });
+    }
+
+    [SwaggerOperation(Summary = "Play a song")]
+    [HttpPost("{ObjectId}/play")]
+    [Authorize]
+    public async Task<IActionResult> PlaySong(string ObjectId)
+    {
+        var song = await _songRepository.GetSongByIdAsync(ObjectId);
+        if (song == null)
+        {
+            return NotFound("Song not found.");
+        }
+        await _songPlayRepository.RecordPlayAsync(ObjectId);
+        return Ok(new { Message = "Song play recorded successfully." });
     }
 }
