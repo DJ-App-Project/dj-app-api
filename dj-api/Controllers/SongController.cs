@@ -13,13 +13,14 @@ using System.Threading.Tasks;
 [Route("api/songs")]
 public class SongController : ControllerBase
 {
-    private readonly SongRepository _songRepository;
-    private readonly SongPlayRepository _songPlayRepository;
+    private readonly ISongRepository _songRepository;
+    private readonly ISongPlayRepository _songPlayRepository;
 
 
-    public SongController(SongRepository songRepository)
+    public SongController(ISongRepository songRepository, ISongPlayRepository songPlayRepository)
     {
         _songRepository = songRepository;
+        _songPlayRepository = songPlayRepository;
     }
     [SwaggerOperation(Summary = "DEPRECATED: Get all songs (use paginated version)")]
     [HttpGet("/song-old")]

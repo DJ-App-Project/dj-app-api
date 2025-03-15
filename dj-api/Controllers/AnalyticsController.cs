@@ -11,9 +11,9 @@ namespace dj_api.Controllers
     [Route("api/analytics")]
     public class AnalyticsController : Controller
     {
-        private readonly SongPlayRepository _songPlayRepository;
+        private readonly ISongPlayRepository _songPlayRepository;
 
-        public AnalyticsController(SongPlayRepository songPlayRepository)
+        public AnalyticsController(ISongPlayRepository songPlayRepository)
         {
             _songPlayRepository = songPlayRepository;
         }

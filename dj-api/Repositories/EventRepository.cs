@@ -14,7 +14,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace dj_api.Repositories
 {
-    public class EventRepository
+    public class EventRepository : IEventRepository
     {
         private readonly IMongoCollection<Event> _eventsCollection;
         private readonly IMongoCollection<Song> _songsCollection;

@@ -17,11 +17,14 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class EventController : ControllerBase
 {
-    private readonly EventRepository _eventsRepository;
-    private readonly UserRepository _userRepository;
-    private readonly SongRepository _songRepository;
+    private readonly IEventRepository _eventsRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly ISongRepository _songRepository;
 
-    public EventController(EventRepository eventRepository, UserRepository userRepository, SongRepository songRepository) // konstruktor za EventController
+    public EventController(
+        IEventRepository eventRepository,
+        IUserRepository userRepository,
+        ISongRepository songRepository)
     {
         _eventsRepository = eventRepository;
         _userRepository = userRepository;
@@ -207,11 +210,11 @@ public class EventController : ControllerBase
                 Date = data.Date,
                 Location = data.Location,
                 Active = data.Active,
-               
+
                 MusicConfig = new Event.MusicConfigClass()
             };
             await _eventsRepository.CreateEventAsync(newEvent);
-            return Ok(new
+            return Ok(new CreateEventResponse
             {
                 Message = "Event created successfully.",
                 EventId = newEvent.ObjectId
