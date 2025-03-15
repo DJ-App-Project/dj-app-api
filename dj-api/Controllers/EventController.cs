@@ -53,11 +53,16 @@ public class EventController : ControllerBase
     }
 
 
-    [HttpGet("EventsFromUser/{UserId}")]
+    [HttpGet("EventsFromUser")]
     [Authorize]
-    public async Task<IActionResult> EventFromUser(string UserId)
+    public async Task<IActionResult> EventFromUser()
     {
-        if(UserId == null)
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+        if (userId == null)
         {
             return BadRequest("Error in UserId");
         }
@@ -65,7 +70,7 @@ public class EventController : ControllerBase
         {
 
 
-            List<Event> Events = await _eventsRepository.FindEvents(UserId);
+            List<Event> Events = await _eventsRepository.FindEvents(userId);
             List<EventGet> filteredEvents = Events.Select(e => new EventGet
             {
                 ObjectId = e.ObjectId,
