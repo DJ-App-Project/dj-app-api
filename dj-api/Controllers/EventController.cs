@@ -508,4 +508,29 @@ public class EventController : ControllerBase
 
         return Ok(similarSongs);
     }
+
+    [HttpGet("{eventId}/leaderboard")]
+    [Authorize]
+    public async Task<IActionResult> GetEventLeaderboard(string eventId)
+    {
+        var eventy = await _eventsRepository.GetEventByIdAsync(eventId);
+        if (eventy == null)
+        {
+            return NotFound(new { message = "Event not found." });
+        }
+
+        var leaderboard = eventy.MusicConfig?.MusicPlaylist?
+            .OrderByDescending(m => m.Votes)
+            .Select((m, index) => new
+            {
+                Rank = index + 1,
+                MusicName = m.MusicName,
+                Artist = m.MusicArtist,
+                Votes = m.Votes,
+                IsUserRecommendation = m.IsUserRecommendation
+            }).ToList();
+
+        return Ok(leaderboard);
+    }
+
 }
