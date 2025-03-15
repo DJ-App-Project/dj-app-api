@@ -1,4 +1,5 @@
 ﻿using dj_api.ApiModels.Event.Get;
+using dj_api.ApiModels.Event.Get.ReturnEvent;
 using dj_api.ApiModels.Event.Post;
 using dj_api.ApiModels.Event.Put;
 using dj_api.Models;
@@ -50,6 +51,56 @@ public class EventController : ControllerBase
 
         return Ok(eventy);
     }
+
+
+    [HttpGet("EventsFromUser/{UserId}")]
+    [Authorize]
+    public async Task<IActionResult> EventFromUser(string UserId)
+    {
+        if(UserId == null)
+        {
+            return BadRequest("Error in UserId");
+        }
+        try
+        {
+
+
+            List<Event> Events = await _eventsRepository.FindEvents(UserId);
+            List<EventReturnGet> filteredEvents = Events.Select(e => new EventReturnGet
+            {
+                ObjectId = e.ObjectId,
+                DJId = e.DJId,
+                QRCodeText = e.QRCodeText,
+                Name = e.Name,
+                Description = e.Description,
+                Date = e.Date,
+                Location = e.Location,
+                Active = e.Active,
+                MusicConfig = new MusicConfigGet
+                {
+                    EnableUserRecommendation = e.MusicConfig.EnableUserRecommendation,
+                    MusicPlaylist = e.MusicConfig.MusicPlaylist
+                        .Select(m => new MusicDataGet
+                        {
+                            MusicName = m.MusicName,
+                            MusicArtist = m.MusicArtist,
+                            MusicGenre = m.MusicGenre,
+                            Visible = m.Visible,
+                            Votes = m.Votes,
+                            IsUserRecommendation = m.IsUserRecommendation,
+                        }).ToList()
+                }
+            }).ToList();
+            return Ok(filteredEvents);
+        }
+        catch {
+            return BadRequest("Error when creating events");
+        }
+        
+    }
+
+
+
 
     [SwaggerOperation(Summary = "Delete Event by Id")]
     [HttpDelete("{EventId}")]
@@ -495,5 +546,8 @@ public class EventController : ControllerBase
             return StatusCode(500, new { error = "An error occurred while removing music.", details = ex.Message });
         }
     }
+
+
+    
 
 }
