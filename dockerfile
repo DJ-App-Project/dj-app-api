@@ -29,8 +29,6 @@ ENV JWTSecrets__audience=${JWTSecrets__audience}
 ENV JWTSecrets__secretKey=${JWTSecrets__secretKey}
 ENV JWTSecrets__expires=${JWTSecrets__expires}
 
-ENV ASPNETCORE_ENVIRONMENT=Production
-
 EXPOSE 5152
 
-ENTRYPOINT ["dotnet", "dj-api.dll"] 
+ENTRYPOINT ["dotnet", "dj-api.dll"]
