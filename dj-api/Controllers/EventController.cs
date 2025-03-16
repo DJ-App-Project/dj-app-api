@@ -89,7 +89,7 @@ public class EventController : ControllerBase
         }
         return NotFound(); // če QR koda ni generirana, vrni NotFound
     }
-    
+
     [SwaggerOperation(Summary = "Get paginated Events (only events)")]
     [HttpGet("/AllEvents")]
     [Authorize]
@@ -123,7 +123,7 @@ public class EventController : ControllerBase
         var musicList = Event?.MusicConfig?.MusicPlaylist?
         .Select(m => new MusicGet
         {
-           
+
             MusicName = m.MusicName,
             MusicArtist = m.MusicArtist,
             MusicGenre = m.MusicGenre,
@@ -163,7 +163,7 @@ public class EventController : ControllerBase
                 Date = data.Date,
                 Location = data.Location,
                 Active = data.Active,
-               
+
                 MusicConfig = new Event.MusicConfigClass()
             };
             await _eventsRepository.CreateEventAsync(newEvent);
@@ -184,7 +184,7 @@ public class EventController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SetEnableUserRecommendation(SetEnableUserRecommendationPost data)
     {
-        
+
         if (data == null)
         {
             return BadRequest("Request error");
@@ -244,7 +244,7 @@ public class EventController : ControllerBase
         }
         var songTitle = _songRepository.FindSongByTitleAsync(data.MusicName);
         var songArtist = _songRepository.FindSongsByArtistAsync(data.MusicArtist);
-        if(songArtist ==null || songTitle == null)
+        if (songArtist == null || songTitle == null)
         {
             Song newSong = new Song
             {
@@ -274,23 +274,24 @@ public class EventController : ControllerBase
             Event.MusicConfig.MusicPlaylist.Add(newMusic);
             await _eventsRepository.UpdateEventAsync(Event.ObjectId, Event);
 
-           // Extract relevant details and sort by votes (descending)
-          /*   var musicDetails = Event.MusicConfig?.MusicPlaylist?
-                .OrderByDescending(m => m.Votes) //po votih padajoce
-                .Select(m => new
-                {
-                    MusicName = m.MusicName,
-                    Visible = m.Visible,
-                    Votes = m.Votes,
-                    IsUserRecommendation = m.IsUserRecommendation,
-                    RecommenderID = m.RecommenderID
-                }).ToList();*/
+            // Extract relevant details and sort by votes (descending)
+            /*   var musicDetails = Event.MusicConfig?.MusicPlaylist?
+                  .OrderByDescending(m => m.Votes) //po votih padajoce
+                  .Select(m => new
+                  {
+                      MusicName = m.MusicName,
+                      Visible = m.Visible,
+                      Votes = m.Votes,
+                      IsUserRecommendation = m.IsUserRecommendation,
+                      RecommenderID = m.RecommenderID
+                  }).ToList();*/
 
             return Ok();
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             return BadRequest("Error");
-                }
+        }
 
     }
 
@@ -335,11 +336,11 @@ public class EventController : ControllerBase
         {
             return BadRequest(new { message = "Event doesn't exist" });
         }
-        if(eventy.Active == false)
+        if (eventy.Active == false)
         {
             return BadRequest("Event didn't start yes");
         }
-        
+
 
         try
         {
@@ -352,7 +353,7 @@ public class EventController : ControllerBase
                 return BadRequest(new { message = "Song doesn't exist in event" });
             }
 
-            
+
             bool hasUserVoted = eventy.MusicConfig.MusicPlaylist
                 .Any(m => m.VotersIDs.Contains(userId));
 
@@ -361,11 +362,11 @@ public class EventController : ControllerBase
                 return BadRequest(new { message = "User has already voted for a song in this event" });
             }
 
-            
+
             existingSong.VotersIDs.Add(userId);
             existingSong.Votes += 1;
 
-           
+
             await _eventsRepository.UpdateEventAsync(eventId, eventy);
 
             return Ok(new { message = "Vote successfully recorded!" });
@@ -377,17 +378,18 @@ public class EventController : ControllerBase
     }
 
 
-    
+
     [HttpPut("ChangeQRCodeText/{EventId}")]
     [Authorize]
-    public async Task<IActionResult> ChangeQRCodeText(ChangeQRCodeTextPut data,string EventId) 
+    public async Task<IActionResult> ChangeQRCodeText(ChangeQRCodeTextPut data, string EventId)
     {
-        if(data == null)
+        if (data == null)
         {
             return BadRequest("error in data");
         }
         var Event = await _eventsRepository.GetEventByIdAsync(EventId);
-        if (Event == null) {
+        if (Event == null)
+        {
             return BadRequest("Event doesnt exist");
         }
 
@@ -397,7 +399,8 @@ public class EventController : ControllerBase
             await _eventsRepository.UpdateEventAsync(EventId, Event);
             return Ok();
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             return BadRequest("Error when updating ChangeQRCodeText");
         }
     }
@@ -436,14 +439,14 @@ public class EventController : ControllerBase
                 return BadRequest("Song doesn't exist");
             }
 
-           
+
             votedSong.Votes -= 1;
 
-           
+
             votedSong.VotersIDs.Remove(userId);
 
-         
-            await _eventsRepository.UpdateEventAsync(EventId,Event);
+
+            await _eventsRepository.UpdateEventAsync(EventId, Event);
 
             return Ok(new { message = "Vote removed successfully" });
         }
@@ -471,7 +474,7 @@ public class EventController : ControllerBase
             return BadRequest("Event doesn't exist");
         }
 
-      
+
         var musicToRemove = Event.MusicConfig?.MusicPlaylist?
             .FirstOrDefault(m => m.MusicName == data.MusicName && m.MusicArtist == data.MusicArtist);
 
@@ -482,10 +485,10 @@ public class EventController : ControllerBase
 
         try
         {
-           
+
             Event.MusicConfig.MusicPlaylist.Remove(musicToRemove);
 
-       
+
             await _eventsRepository.UpdateEventAsync(EventId, Event);
 
             return Ok(new { message = "Music removed successfully from the event." });
@@ -533,4 +536,152 @@ public class EventController : ControllerBase
         return Ok(leaderboard);
     }
 
+    /// <summary>
+    /// Vote to skip a specific song in an event.
+    /// </summary>
+    /// <param name="eventId">The event ID.</param>
+    /// <param name="songId">The song ID.</param>"
+    /// <returns>Action result indicating the outcome</returns>
+
+    [SwaggerOperation(Summary = "Vote to skip a specific song in an event.")]
+    [HttpPost("{eventId}/skip/{songId}")]
+    [Authorize]
+    public async Task<IActionResult> VoteToSkipSong(string eventId, string songId)
+    {
+        var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(UserId))
+        {
+            return Unauthorized(new { message = "User authentication required." });
+        }
+
+        var currentEvent = await _eventsRepository.GetEventByIdAsync(eventId);
+        if (currentEvent == null)
+        {
+            return NotFound(new { message = "Event not found." });
+        }
+
+        if (!currentEvent.Active)
+        {
+            return BadRequest(new { message = "Event is not active." });
+        }
+
+        var song = currentEvent.MusicConfig?.MusicPlaylist?
+            .FirstOrDefault(m => m.ObjectId == songId);
+
+        if (song == null)
+        {
+            return NotFound(new { message = "Song not found in event playlist." });
+        }
+
+        //Check if the user has already voted to skip the song
+        if (song.VotersIDs.Contains(UserId))
+        {
+            return BadRequest(new { message = "User has already voted to skip this song." });
+        }
+
+        //Record the skip votes
+        song.Votes += 1;
+        song.VotersIDs.Add(UserId);
+
+        int totalActiveUsers = await _userRepository.GetTotalActiveUsersAsync();
+        int requiredVotes = (int)Math.Ceiling(totalActiveUsers / 2.0) + 1;
+        bool shouldSkip = song.Votes >= requiredVotes;
+
+        if (shouldSkip)
+        {
+            await SkipSongAsync(currentEvent, song);
+            return Ok(new
+            {
+                Message = "Vote recorded. Skip threshold reached. The song has been skipped.",
+                CurrentVotes = song.Votes,
+                VotesNeeded = requiredVotes,
+                ShouldSkip = shouldSkip
+            });
+        }
+
+        //update the event with the new vote count
+        await _eventsRepository.UpdateEventAsync(eventId, currentEvent);
+        return Ok(new
+        {
+            Message = "Vote recorded.",
+            CurrentVotes = song.Votes,
+            VotesNeeded = requiredVotes,
+            ShouldSkip = shouldSkip
+        });
+    }
+
+    /// <summary>
+    /// Get the current skip vote status for a specific song in an event.
+    /// </summary>
+    /// <param name="eventId">The ID of the event.</param>
+    /// <param name="songId">The ID of the song.</param>
+    /// <returns>Current skip vote status.</returns>
+    [SwaggerOperation(Summary = "Get the current skip vote status for a specific song in an event.")]
+    [HttpGet("{eventId}/skip/status/{songId}")]
+    [Authorize]
+    public async Task<IActionResult> GetSkipVoteStatus(string eventId, string songId)
+    {
+        var currentEvent = await _eventsRepository.GetEventByIdAsync(eventId);
+        if (currentEvent == null)
+        {
+            return NotFound(new { message = "Event not found." });
+        }
+
+        var song = currentEvent.MusicConfig?.MusicPlaylist?
+            .FirstOrDefault(m => m.ObjectId == songId);
+
+        if (song == null)
+        {
+            return NotFound(new { message = "Song not found in event playlist." });
+        }
+
+        int totalActiveUsers = await _userRepository.GetTotalActiveUsersAsync();
+        int requiredVotes = (int)Math.Ceiling(totalActiveUsers / 2.0) + 1;
+        bool shouldSkip = song.Votes >= requiredVotes;
+
+        return Ok(new
+        {
+            CurrentVotes = song.Votes,
+            VotesNeeded = requiredVotes,
+            ShouldSkip = shouldSkip
+        });
+    }
+
+    /// <summary>
+    /// Skips the specified song in the event.
+    /// </summary>
+    /// <param name="currentEvent">The current event.</param>
+    /// <param name="song">The song to skip.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task SkipSongAsync(Event currentEvent, MusicData song)
+    {
+        currentEvent.MusicConfig.MusicPlaylist.Remove(song);
+        await _eventsRepository.UpdateEventAsync(currentEvent.ObjectId, currentEvent);
+    }
+
+    /// <summary>
+    /// Get awards for a specific event.
+    /// </summary>
+    /// <param name="eventId">The ID of the event.</param>
+    /// <returns>A list of awards.</returns>
+    [SwaggerOperation(Summary = "Get awards for a specific event")]
+    [HttpGet("{eventId}/awards")]
+    [Authorize]
+    public async Task<IActionResult> GetEventAwards(string eventId)
+    {
+        var currentEvent = await _eventsRepository.GetEventByIdAsync(eventId);
+        if (currentEvent == null)
+        {
+            return NotFound(new { message = "Event not found." });
+        }
+
+        var awards = await _eventsRepository.GenerateAwardsAsync(currentEvent);
+
+        if (awards == null || awards.Count == 0)
+        {
+            return Ok(new { message = "No awards available for this event." });
+        }
+
+        return Ok(awards);
+    }
 }
