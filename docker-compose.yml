@@ -1,0 +1,18 @@
+version: '3'
+services:
+  dj-api:
+    build: .
+    container_name: dj-api-backend
+    ports:
+      - "8090:90"  
+    networks:
+      - monitoring
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - JWTSecrets__issuer=yourIssuer
+      - JWTSecrets__audience=yourAudience
+      - JWTSecrets__secretKey=yourSuperSecretKey
+
+networks:
+  monitoring:
+    driver: bridge

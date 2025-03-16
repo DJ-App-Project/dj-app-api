@@ -9,9 +9,9 @@ namespace dj_api.Controllers
     [Route("api/playlist")]
     public class PlaylistController : Controller
     {
-        private readonly PlaylistRepository _playlistRepository;
+        private readonly IPlaylistRepository _playlistRepository;
 
-        public PlaylistController(PlaylistRepository playlistRepository)
+        public PlaylistController(IPlaylistRepository playlistRepository)
         {
             _playlistRepository = playlistRepository;
         }

@@ -11,10 +11,11 @@ using dj_api.ApiModels.Event.Post;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Reflection.Metadata.Ecma335;
+using MongoDB.Bson;
 
 namespace dj_api.Repositories
 {
-    public class EventRepository
+    public class EventRepository : IEventRepository
     {
         private readonly IMongoCollection<Event> _eventsCollection;
         private readonly IMongoCollection<Song> _songsCollection;
@@ -224,7 +225,7 @@ namespace dj_api.Repositories
             {
                 if (song.MusicGenre == null) //če je music genre prazen preskočimo
                 {
-                    continue; 
+                    continue;
                 }
 
                 if (!genreCount.ContainsKey(song.MusicGenre))
@@ -257,7 +258,195 @@ namespace dj_api.Repositories
                    .ToListAsync();
                 return similarSongs; //če ni žanrov, vrni 10 random pesmi
             }
+        }
 
+        /// <summary>
+        /// Generates awards based on the current state of the event.
+        /// </summary>
+        /// <param name="currentEvent">The current event.</param>
+        /// <returns>A list of awards.</returns>
+        public async Task<List<AwardGet>> GenerateAwardsAsync(Event currentEvent)
+        {
+            return await Task.Run(() =>
+            {
+                var awards = new List<AwardGet>();
+
+                if (currentEvent.MusicConfig?.MusicPlaylist == null || !currentEvent.MusicConfig.MusicPlaylist.Any())
+                {
+                    return awards;
+                }
+
+                var musicPlaylist = currentEvent.MusicConfig.MusicPlaylist;
+
+                //1 top voted song
+                var topVotedSong = musicPlaylist.OrderByDescending(m => m.Votes).FirstOrDefault();
+
+                if (topVotedSong != null)
+                {
+                    awards.Add(new AwardGet
+                    {
+                        AwardName = "Top voted song",
+                        Description = "The song with the highest number of votes.",
+                        SongId = topVotedSong.ObjectId,
+                        MusicName = topVotedSong.MusicName,
+                        MusicArtist = topVotedSong.MusicArtist,
+                        Votes = topVotedSong.Votes
+                    });
+                }
+
+                //2. most reccomended song
+
+                var mostRecommendedSong = musicPlaylist.Where(m => m.IsUserRecommendation).OrderByDescending(m => m.VotersIDs.Count).FirstOrDefault();
+
+                if (mostRecommendedSong != null)
+                {
+                    awards.Add(new AwardGet
+                    {
+                        AwardName = "Most Recommended Song",
+                        Description = "The song recommended by the most users.",
+                        SongId = mostRecommendedSong.ObjectId,
+                        MusicName = mostRecommendedSong.MusicName,
+                        MusicArtist = mostRecommendedSong.MusicArtist,
+                        Votes = mostRecommendedSong.Votes
+                    });
+                }
+
+                //3. crowd favorite artist
+
+                var crowdFavoriteArtist = musicPlaylist.Where(m => m.IsUserRecommendation).OrderByDescending(m => m.VotersIDs.Count).FirstOrDefault();
+
+                if (crowdFavoriteArtist != null)
+                {
+                    awards.Add(new AwardGet
+                    {
+                        AwardName = "Crowd Favorite Artist",
+                        Description = "The artist whose songs received the highest cumulative votes.",
+                        MusicName = null,
+                        MusicArtist = crowdFavoriteArtist.MusicArtist,
+                        Votes = crowdFavoriteArtist.Votes
+                    });
+                }
+
+                //4. dj's choice
+
+                var djsChoiceSong = musicPlaylist.FirstOrDefault(m => !m.IsUserRecommendation);
+
+                if (djsChoiceSong != null)
+                {
+                    awards.Add(new AwardGet
+                    {
+                        AwardName = "DJ's Choice",
+                        Description = "A special award for a song selected by the DJ.",
+                        SongId = djsChoiceSong.ObjectId,
+                        MusicName = djsChoiceSong.MusicName,
+                        MusicArtist = djsChoiceSong.MusicArtist,
+                        Votes = djsChoiceSong.Votes
+                    });
+                }
+
+                return awards;
+            });
+        }
+
+        /// <summary>
+        /// Retrieves the top N songs across all events based on total votes.
+        /// </summary>
+        /// <param name="topN">Number of top songs to retrieve.</param>
+        /// <returns>A list of top songs.</returns>
+        public async Task<List<TopSongsGet>> GetTopSongsAsync(int topN = 10)
+        {
+            var events = await _eventsCollection.Find(_ => true).ToListAsync();
+
+            var topSongs = events
+                .SelectMany(e => e.MusicConfig?.MusicPlaylist ?? Enumerable.Empty<MusicData>())
+                .GroupBy(song => song.MusicGenre)
+                .Select(g => new TopSongsGet
+                {
+                    Genre = g.Key,
+                    TotalVotes = g.Sum(song => song.Votes),
+                    SongCount = g.Count()
+                })
+                .OrderByDescending(x => x.TotalVotes)
+                .Take(topN)
+                .ToList();
+
+            return topSongs;
+        }
+
+
+        /// <summary>
+        /// Retrieves genre popularity based on total votes and song count.
+        /// </summary>
+        /// <returns>A list of genre popularity statistics.</returns>
+        public async Task<List<GenrePopularityGet>> GetGenrePopularityAsync()
+        {
+            var events = await _eventsCollection.Find(_ => true).ToListAsync();
+
+            var genrePopularity = events
+                // Use null-conditional operator to default to an empty sequence if MusicConfig or MusicPlaylist is null
+                .SelectMany(e => e.MusicConfig?.MusicPlaylist ?? Enumerable.Empty<MusicData>())
+                .GroupBy(song => song.MusicGenre)
+                .Select(g => new GenrePopularityGet
+                {
+                    Genre = g.Key,
+                    TotalVotes = g.Sum(song => song.Votes),
+                    SongCount = g.Select(song => song.MusicName).Distinct().Count()
+                })
+                .OrderByDescending(x => x.TotalVotes)
+                .ToList();
+
+            return genrePopularity;
+        }
+
+
+        /// <summary>
+        /// Retrieves user contribution metrics based on recommendations and votes.
+        /// </summary>
+        /// <returns>A list of user contribution statistics.</returns>
+        public async Task<List<UserContributionGet>> GetUserContributionMetricsAsync()
+        {
+            var events = await _eventsCollection.Find(_ => true).ToListAsync();
+
+            var userContributions = events
+                // Safely select MusicPlaylist items; if null, return an empty sequence.
+                .SelectMany(e => e.MusicConfig?.MusicPlaylist ?? Enumerable.Empty<MusicData>())
+                .GroupBy(song => song.RecommenderID)
+                .Select(g => new UserContributionGet
+                {
+                    UserId = g.Key,
+                    Recommendations = g.Sum(song => song.IsUserRecommendation ? 1 : 0),
+                    Votes = g.Sum(song => song.Votes)
+                })
+                .OrderByDescending(x => x.Votes)
+                .ToList();
+
+            return userContributions;
+        }
+
+
+        /// <summary>
+        /// Retrieves performance metrics for all events.
+        /// </summary>
+        /// <returns>A list of event performance statistics.</returns>
+        public async Task<List<EventPerformanceGet>> GetEventPerformanceMetricsAsync()
+        {
+            var events = await _eventsCollection.Find(_ => true).ToListAsync();
+
+            var eventPerformances = events
+                .Select(e => new EventPerformanceGet
+                {
+                    EventId = e.ObjectId, // or use e.Id if preferred
+                    EventName = e.Name,
+                    TotalSongs = e.MusicConfig?.MusicPlaylist?.Count ?? 0,
+                    TotalVotes = e.MusicConfig?.MusicPlaylist?.Sum(song => song.Votes) ?? 0,
+                    AverageVotesPerSong = (e.MusicConfig?.MusicPlaylist != null && e.MusicConfig.MusicPlaylist.Count > 0)
+                        ? e.MusicConfig.MusicPlaylist.Sum(song => song.Votes) / (double)e.MusicConfig.MusicPlaylist.Count
+                        : 0
+                })
+                .OrderByDescending(ep => ep.TotalVotes)
+                .ToList();
+
+            return eventPerformances;
         }
         public async Task<List<Event>> FindEvents(string UserId)
         {

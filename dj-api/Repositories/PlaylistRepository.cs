@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace dj_api.Repositories
 {
-    public class PlaylistRepository
+    public class PlaylistRepository : IPlaylistRepository
     {
         private readonly IMongoCollection<Playlist> _playlistCollection;
         private readonly IMemoryCache _memoryCache;

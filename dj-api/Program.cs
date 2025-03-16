@@ -55,14 +55,15 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
 
 // Add services to the container
 builder.Services.AddSingleton<MongoDbContext>();
-builder.Services.AddSingleton<EventRepository>();
-builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddSingleton<IEventRepository, EventRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<GuestUserRepository>();
-builder.Services.AddSingleton<SongRepository>();
-builder.Services.AddSingleton<PlaylistRepository>();
+builder.Services.AddSingleton<ISongRepository, SongRepository>();
+builder.Services.AddSingleton<IPlaylistRepository, PlaylistRepository>();
 builder.Services.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
-builder.Services.AddSingleton<TokenService>();
-builder.Services.AddSingleton<SongPlayRepository>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<ISongPlayRepository, SongPlayRepository>();
+builder.Services.AddSingleton<SongRepository>();
 
 builder.Services.AddControllers();
 
