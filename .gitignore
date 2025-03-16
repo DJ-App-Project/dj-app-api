@@ -1,3 +1,4 @@
 .vs/
 dj-api/bin/
 dj-api/obj/
+.env

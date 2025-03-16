@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  api:
+    image: timotejekart/dj-api:latest
+    ports:
+      - "5152:5152"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5152
+      - ConnectionStrings__DbConnection=${MONGODB_CONNECTION_STRING}
+      - JWTSecrets__issuer=${JWT_ISSUER}
+      - JWTSecrets__audience=${JWT_AUDIENCE}
+      - JWTSecrets__secretKey=${JWT_SECRET_KEY}
+      - JWTSecrets__expires=${JWT_EXPIRES}
