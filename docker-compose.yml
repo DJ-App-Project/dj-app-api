@@ -4,6 +4,8 @@ services:
     image: timotejekart/dj-api:latest
     ports:
       - "5152:5152"
+    env_file:
+      - .env.development
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5152
