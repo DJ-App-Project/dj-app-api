@@ -1,0 +1,52 @@
+name: MongoDB Update
+
+on:
+  push:
+    paths:
+      - 'dj-api/Models/**'       
+      - 'dj-api/Data/**'         
+      - 'dj-api/Repositories/**'  
+      - 'db/scripts/**'        
+      - 'db/migrations/**'     
+    branches: [ timotej, main ]
+  workflow_dispatch:  
+
+jobs:
+  update-database:
+    runs-on: ubuntu-latest
+    
+    env:
+      MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+      
+    steps:
+    - uses: actions/checkout@v4 
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Install MongoDB Shell
+      run: |
+        wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.1.1_amd64.deb
+        sudo apt install ./mongodb-mongosh_2.1.1_amd64.deb
+        
+    - name: Configure DNS
+      run: |
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
+        echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
+        
+    - name: Apply Database Updates
+      run: |
+        nslookup mongodbitk.duckdns.org
+        mongosh "${{ secrets.MONGODB_CONNECTION_STRING }}" --eval="db.runCommand({ ping: 1 });"
+        
+        if [ -f "./db/scripts/update.js" ]; then
+          mongosh "${{ secrets.MONGODB_CONNECTION_STRING }}" --file ./db/scripts/update.js
+        fi
+        
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "MongoDB update failed."
+        exit 1
