@@ -9,6 +9,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
+using Prometheus;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,6 +115,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRouting();
+app.UseHttpMetrics();
+
+app.MapMetrics();
 
 app.UseCors("AllowClient");
 app.UseHttpsRedirection();
