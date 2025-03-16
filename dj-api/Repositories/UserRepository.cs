@@ -6,7 +6,7 @@ using dj_api.ApiModels;
 
 namespace dj_api.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly IMongoCollection<User> _usersCollection;
         private readonly IMemoryCache _memoryCache;

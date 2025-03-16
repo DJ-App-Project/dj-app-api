@@ -9,7 +9,7 @@ using MongoDB.Bson;
 
 namespace dj_api.Repositories
 {
-    public class SongRepository
+    public class SongRepository : ISongRepository
     {
         private readonly IMongoCollection<Song> _songsCollection;
         private readonly IMemoryCache _memoryCache;

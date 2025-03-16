@@ -15,7 +15,7 @@ using MongoDB.Bson;
 
 namespace dj_api.Repositories
 {
-    public class EventRepository
+    public class EventRepository : IEventRepository
     {
         private readonly IMongoCollection<Event> _eventsCollection;
         private readonly IMongoCollection<Song> _songsCollection;
@@ -448,5 +448,11 @@ namespace dj_api.Repositories
 
             return eventPerformances;
         }
+        public async Task<List<Event>> FindEvents(string UserId)
+        {
+            var filter = Builders<Event>.Filter.Eq(e => e.DJId, UserId);
+            return await _eventsCollection.Find(filter).ToListAsync();
+        }
     }
 }
+

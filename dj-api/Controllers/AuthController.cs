@@ -13,9 +13,9 @@ namespace dj_api.Controllers
     [Route("api/auth")]
     public class AuthController : Controller
     {
-        private readonly UserRepository _userRepository;
-        private readonly TokenService _tokenService;
-        public AuthController(UserRepository userRepository,TokenService tokenService)
+        private readonly IUserRepository _userRepository;
+        private readonly ITokenService _tokenService;
+        public AuthController(IUserRepository userRepository,ITokenService tokenService)
         {
             _tokenService = tokenService;
             _userRepository = userRepository;

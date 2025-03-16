@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using dj_api.Models;
 using dj_api.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -16,8 +16,8 @@ namespace dj_api.Controllers
 
         public AnalyticsController(EventRepository eventRepository, SongPlayRepository songPlayRepository)
         {
-            _songPlayRepository = songPlayRepository;
             _eventsRepository = eventRepository;
+            _songPlayRepository = songPlayRepository;
         }
 
         [SwaggerOperation(Summary = "Record a song play event")]

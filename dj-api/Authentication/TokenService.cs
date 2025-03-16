@@ -7,7 +7,7 @@ using System.Text;
 
 namespace dj_api.Authentication
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
 

@@ -10,7 +10,7 @@ using MongoDB.Bson;
 
 namespace dj_api.Repositories
 {
-    public class SongPlayRepository
+    public class SongPlayRepository : ISongPlayRepository
     {
         private readonly IMongoCollection<SongPlay> _songPlaysCollection;
         private readonly SongRepository _songRepository;
