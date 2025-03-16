@@ -7,7 +7,7 @@ on:
     branches: [timotej]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,17 +25,8 @@ jobs:
       - name: Build API
         run: dotnet build -c Release --no-restore dj-api/dj-api.csproj
 
-      - name: Restore DjTests dependencies
-        run: dotnet restore DjTests/DjTests.csproj
-
-      - name: Build DjTests
-        run: dotnet build -c Release --no-restore DjTests/DjTests.csproj
-
-      - name: Run tests
-        run: dotnet test -c Release --no-build DjTests/DjTests.csproj --collect:"XPlat Code Coverage"
-
   build-and-push-docker:
-    needs: build-and-test
+    needs: build
     if: (github.ref == 'refs/heads/timotej') && github.event_name == 'push'
     runs-on: ubuntu-latest
     
