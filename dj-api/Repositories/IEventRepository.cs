@@ -17,5 +17,6 @@ namespace dj_api.Repositories
         Task<List<Song>> GetSilimarSongsToEvent(string eventId);
         Task<List<EventGet>> GetPaginatedEventsAsync(int page, int pageSize);
         Task<byte[]> GenerateQRCode(string EventId);
+        Task<List<AwardGet>> GenerateAwardsAsync(Event currentEvent);
     }
 }
