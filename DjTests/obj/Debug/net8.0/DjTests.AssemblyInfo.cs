@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DjTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eecdd2fb8354a1260e311e7d4f420f4937f685f3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ee5299fcad388251749245596ad4a6a19f2d2ea")]
 [assembly: System.Reflection.AssemblyProductAttribute("DjTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DjTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -63,6 +63,7 @@ builder.Services.AddSingleton<IPlaylistRepository, PlaylistRepository>();
 builder.Services.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()));
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<ISongPlayRepository, SongPlayRepository>();
+builder.Services.AddSingleton<SongRepository>();
 
 builder.Services.AddControllers();
 

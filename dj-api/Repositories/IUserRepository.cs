@@ -13,5 +13,6 @@ namespace dj_api.Repositories
         Task DeleteUserAsync(string id);
         Task UpdateUserAsync(string id, User user);
         Task<List<User>> GetPaginatedUserAsync(int page, int pageSize);
+        Task<int> GetTotalActiveUsersAsync();
     }
 }
