@@ -149,5 +149,10 @@ namespace dj_api.Repositories
             return cachedUsers;
         }
 
+        public async Task<int> GetTotalActiveUsersAsync()
+        {
+            return (int)await _usersCollection.CountDocumentsAsync(_ => true);
+        }
+
     }
 }
