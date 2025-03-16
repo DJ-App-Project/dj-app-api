@@ -2,9 +2,9 @@ name: API CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [timotej]
   pull_request:
-    branches: [main]
+    branches: [timotej]
 
 jobs:
   build:
@@ -57,7 +57,7 @@ jobs:
 
   build-and-push-docker:
     needs: build
-    if: (github.ref == 'refs/heads/main') && github.event_name == 'push' 
+    if: (github.ref == 'refs/heads/timotej') && github.event_name == 'push' 
     runs-on: ubuntu-latest
     
     steps:
